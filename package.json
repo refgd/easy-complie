@@ -11,6 +11,10 @@
     "Other"
   ],
   "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/refgd/easy-complie.git"
+  },
   "activationEvents": [
     "onLanguage:less",
     "onLanguage:typescript",
