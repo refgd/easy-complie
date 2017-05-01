@@ -21,18 +21,56 @@ class MinifyJsCommand
     {
         StatusBarMessage.hideError();
 
+        let opts = {
+            "mangleProperties": {
+                regex: /^_/
+            },
+            "fromString": true,
+            "surround": "",
+            "compress": {
+                "sequences": true,
+                "properties": true,
+                "dead_code": true,
+                "drop_debugger": true,
+                "unsafe": true,
+                "unsafe_comps": true,
+                "conditionals": true,
+                "comparisons": true,
+                "evaluate": true,
+                "booleans": true,
+                "loops": true,
+                "unused": true,
+                "hoist_funs": true,
+                "keep_fargs": true,
+                "keep_fnames": false,
+                "hoist_vars": false,
+                "if_return": true,
+                "join_vars": true,
+                "collapse_vars": true,
+                "reduce_vars": true,
+                "cascade": true,
+                "side_effects": true,
+                "pure_getters": false,
+                "pure_funcs": null,
+                "negate_iife": false,
+                "drop_console": false,
+                "passes": 1,
+                "global_defs": {}
+            }
+        }
+
         let globalOptions = Configuration.getGlobalOptions(this.document.fileName, 'js');
         let compilingMessage = StatusBarMessage.show("$(zap) Minifing js", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
-        let renderPromise = new Promise((resolve, reject) => {
-                let opts = {
-                    mangleProperties: {
-                        regex: /^_/
-                    }
+        opts = extend({}, opts, globalOptions);
+        readFilePromise(this.document.fileName).then(buffer =>
+            {
+                let content: string = buffer.toString();
+                if(opts.surround != ''){
+                    content = opts.surround.replace(/\$\{code\}/g, content);
                 }
-                opts = extend({}, opts, globalOptions);
-                let results = minjs.minify(this.document.fileName, opts);
-                resolve(writeFileContents(this.document.fileName, results.code));
+                let results = minjs.minify(content, opts);
+                return writeFileContents(this.document.fileName, results.code);
             }).then(() =>
             {
                 let elapsedTime: number = (Date.now() - startTime);
@@ -90,6 +128,24 @@ function writeFileContents(this: void, filepath: string, content: any): Promise<
             }
 
             fs.writeFile(filepath, content, err => err ? reject(err) : resolve());
+        });
+    });
+}
+
+function readFilePromise(this: void, filename: string): Promise<Buffer> 
+{
+    return new Promise((resolve, reject) =>
+    {
+        fs.readFile(filename, (err: any, buffer: Buffer) =>
+        {
+            if (err) 
+            {
+                reject(err)
+            }
+            else
+            {
+                resolve(buffer);
+            }
         });
     });
 }

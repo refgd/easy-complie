@@ -65,11 +65,12 @@ export function compile(tsFile: string, defaults): Promise<any>
             allowJs: true, removeComments: true,
             target: ts.ScriptTarget.ES5, module: ts.ModuleKind.AMD
         }
+        tsOptions = extend({}, tsOptions, options);
         if (typeof outfile === "string") 
         {
             tsOptions = extend({}, tsOptions, {outFile: resolveFilePath(outfile, tsPath, tsFile)});
         }
-        else if (typeof outdir === "string") 
+        else if (typeof outdir === "string")
         {
             tsOptions = extend({}, tsOptions, {outDir: resolveFilePath(outdir, tsPath, tsFile)});
         }
