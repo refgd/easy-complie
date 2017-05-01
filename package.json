@@ -1,0 +1,148 @@
+{
+  "name": "easy-compile",
+  "displayName": "Easy Compile",
+  "description": "Easy Compile",
+  "version": "1.0.1",
+  "publisher": "refgd",
+  "engines": {
+    "vscode": "^1.11.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "icon": "icon.png",
+  "activationEvents": [
+    "onLanguage:less",
+    "onLanguage:typescript",
+    "onCommand:easyCompile.compile",
+    "onCommand:easyCompile.minifydir",
+    "onCommand:easyCompile.minify"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "easyCompile.compile",
+        "title": "Compile - Easy Compile"
+      },
+      {
+        "command": "easyCompile.minify",
+        "title": "Minify - Easy Compile"
+      },
+      {
+        "command": "easyCompile.minifydir",
+        "title": "Minify Directory - Easy Compile"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Easy Compile configuration",
+      "properties": {
+        "easycompile.compile": {
+          "type": "object",
+          "description": "Configuration options for LESS.",
+          "properties": {
+            "less": {
+              "type": "boolean",
+              "description": "Compile Less?",
+              "default": true
+            },
+            "typescript": {
+              "type": "boolean",
+              "description": "Compile Typescript?",
+              "default": true
+            }
+          }
+        },
+        "easycompile.typescript": {
+          "type": "object",
+          "description": "Configuration options for TypeScript.",
+          "properties": {}
+        },
+        "easycompile.less": {
+          "type": "object",
+          "description": "Configuration options for LESS.",
+          "properties": {
+            "compress": {
+              "type": "boolean",
+              "description": "Compress .css files? (removes unnecessary white-space)",
+              "default": false
+            },
+            "ieCompat": {
+              "type": "boolean",
+              "description": "IE8 compatiblity mode? (restricts size of data-uri to 32KB)",
+              "default": true
+            },
+            "sourceMap": {
+              "type": "boolean",
+              "description": "Should .map files be generated?",
+              "default": false
+            },
+            "sourceMapFileInline": {
+              "type": "boolean",
+              "description": "Should source maps be inlined within the .css file? (requires sourceMap: true)",
+              "default": false
+            },
+            "out": {
+              "type": [
+                "boolean",
+                "string",
+                "null"
+              ],
+              "description": "Default 'out' setting. Set to false to default to no output.",
+              "default": null
+            },
+            "outExt": {
+              "type": "string",
+              "description": "The file extension to use for generated .css files",
+              "default": ".css"
+            },
+            "main": {
+              "type": [
+                "string",
+                "array"
+              ],
+              "description": "Compile specific .less file(s) when any .less file is saved.",
+              "default": "main.less"
+            },
+            "relativeUrls": {
+              "type": "boolean",
+              "description": "Rewrite URLs from imported files, relative to the importing file (default: false)",
+              "default": false
+            },
+            "autoprefixer": {
+              "type": [
+                "string",
+                "array",
+                "null"
+              ],
+              "description": "The 'browsers' argument for autoprefixer plugin (see https://github.com/ai/browserslist#queries)",
+              "default": "> 5%, last 2 Chrome versions, not ie 6-9"
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "dependencies": {
+    "group-css-media-queries": "^1.4.1",
+    "less": "^2.7.2",
+    "less-plugin-autoprefix": "^1.5.1",
+    "less-plugin-clean-css": "^1.5.1",
+    "mkpath": "^1.0.0",
+    "typescript": "^2.0.3",
+    "uglify-js": "^2.8.22"
+  }
+}
