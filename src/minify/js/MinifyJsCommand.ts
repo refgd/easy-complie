@@ -26,7 +26,7 @@ class MinifyJsCommand
                 regex: /^_/
             },
             "fromString": true,
-            "surround": "",
+            "surround": "(function (define){ ${code} })(define)",
             "compress": {
                 "sequences": true,
                 "properties": true,
@@ -66,7 +66,7 @@ class MinifyJsCommand
         readFilePromise(this.document.fileName).then(buffer =>
             {
                 let content: string = buffer.toString();
-                if(opts.surround != ''){
+                if(typeof opts.surround == "string" && opts.surround != ''){
                     content = opts.surround.replace(/\$\{code\}/g, content);
                 }
                 let results = minjs.minify(content, opts);
