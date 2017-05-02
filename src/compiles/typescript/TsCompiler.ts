@@ -60,7 +60,6 @@ export function compile(tsFile: string, defaults): Promise<any>
         
         const baseFilename: string = path.parse(tsFile).name;
         const pathToTypes = path.resolve(intepolatePath('${workspaceRoot}/node_modules/@types'));
-
         let tsOptions = {
             noEmitOnError: true, noImplicitAny: false, sourceMap: false,
             allowJs: true, removeComments: true,
