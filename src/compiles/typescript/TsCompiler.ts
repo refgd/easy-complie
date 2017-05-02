@@ -59,11 +59,13 @@ export function compile(tsFile: string, defaults): Promise<any>
         const outdir: string | undefined = options.outdir;
         
         const baseFilename: string = path.parse(tsFile).name;
+        const pathToTypes = path.resolve(intepolatePath('${workspaceRoot}/node_modules/@types'));
 
         let tsOptions = {
             noEmitOnError: true, noImplicitAny: false, sourceMap: false,
             allowJs: true, removeComments: true,
-            target: ts.ScriptTarget.ES5, module: ts.ModuleKind.AMD
+            target: ts.ScriptTarget.ES5, module: ts.ModuleKind.AMD,
+            typeRoots: [pathToTypes]
         }
         tsOptions = extend({}, tsOptions, options);
         if (typeof outfile === "string") 
@@ -80,15 +82,15 @@ export function compile(tsFile: string, defaults): Promise<any>
         let allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
         let alld: Array<object> = [];
 
-        // allDiagnostics.forEach(diagnostic => {
-        //     let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        //     let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-        //     alld.push({
-        //         lineIndex: line,
-        //         column: character,
-        //         message: message
-        //     });
-        // });
+        allDiagnostics.forEach(diagnostic => {
+            let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+            alld.push({
+                lineIndex: line,
+                column: character,
+                message: message
+            });
+        });
 
         return returnPromise(alld);
     });

@@ -28,3 +28,7 @@ export function getRootFileInfo(parsedPath: path.ParsedPath) {
         rootFilename: null
     }
 }
+
+export function getNodeMPath() {
+    return path.resolve(__dirname+'/../../node_modules/');
+}

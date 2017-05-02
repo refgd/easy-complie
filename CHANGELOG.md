@@ -7,5 +7,15 @@ Initial release
 
 Add minify functions for JS and CSS
 
-## [Unreleased]
-- Initial release
+### 1.0.2
+
+Add surround option to minify js.
+  * Example:
+    ```json
+    "easycompile.js": {
+      "surround": "(function (define){ ${code} })(define)"
+    }
+    ```
+
+### 1.0.3
+Include "Workspace Root/node_modules/@types" with typescript compiler

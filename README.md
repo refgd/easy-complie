@@ -47,6 +47,10 @@ Easily work with LESS and TYPESCRIPT files in Visual Studio Code.
     import * ...
     ...
     ```
+
+  ### Tips
+  You can set "groupmedia: true" for Less, to mearge all media queries
+  
 ## Release Notes
 
 ### 1.0.0
@@ -66,6 +70,9 @@ Add surround option to minify js.
       "surround": "(function (define){ ${code} })(define)"
     }
     ```
+
+### 1.0.3
+Include "Workspace Root/node_modules/@types" with typescript compiler
 
 -----------------------------------------------------------------------------------------------------------
 
