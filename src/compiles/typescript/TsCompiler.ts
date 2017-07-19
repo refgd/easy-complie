@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 
 import Configuration = require("../../Configuration");
 import FileOptionsParser = require("../../FileOptionsParser");
+import MinifyJsCommand = require("../../minify/js/MinifyJsCommand");
 
 const DEFAULT_EXT = ".js";
 
@@ -60,7 +61,7 @@ export function compile(tsFile: string, defaults): Promise<any>
         
         const baseFilename: string = path.parse(tsFile).name;
         const pathToTypes = path.resolve(intepolatePath('${workspaceRoot}/node_modules/@types'));
-        let tsOptions = {
+        let tsOptions:any = {
             noEmitOnError: true, noImplicitAny: false, sourceMap: false,
             allowJs: true, removeComments: true,
             target: ts.ScriptTarget.ES5, module: ts.ModuleKind.AMD,
@@ -90,6 +91,11 @@ export function compile(tsFile: string, defaults): Promise<any>
                 message: message
             });
         });
+        if( (alld === null || alld.length==0) && options.compress && tsOptions.outFile){
+            console.log(tsOptions.outFile);
+            let minifyLib = new MinifyJsCommand(false, false, tsOptions.outFile);
+            minifyLib.execute();
+        }
 
         return returnPromise(alld);
     });
