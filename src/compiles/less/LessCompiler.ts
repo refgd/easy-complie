@@ -23,24 +23,24 @@ export function compile(lessFile: string, defaults): Promise<void>
         if (options.main)
         {
             const mainFilePaths: string[] = resolveMainFilePaths(options.main, lessPath, lessFile);
+            if(!options.exclude) options.exclude = [];
+            if(options.excludes) options.exclude = extend([], options.exclude, options.excludes);
+            const excludePaths: string[] = resolveMainFilePaths(options.exclude, lessPath, lessFile);
             let lastPromise: Promise<void> | null = null;
-            let promiseChainer = (lastPromise: Promise<void>, nextPromise: Promise<void>) => lastPromise.then(() => nextPromise);
             if (mainFilePaths && mainFilePaths.length > 0)
             {
                 for (const filePath of mainFilePaths)
                 {
-                    const mainPath: path.ParsedPath = path.parse(filePath);
-                    const mainRootFileInfo = Configuration.getRootFileInfo(mainPath);
-                    const mainDefaults = extend({}, defaults, { rootFileInfo: mainRootFileInfo });
-                    const compilePromise = compile(filePath, mainDefaults);
-
-                    if (lastPromise)
-                    {
-                        lastPromise = promiseChainer(lastPromise, compilePromise);
-                    }
-                    else
-                    {
-                        lastPromise = compilePromise;
+                    if(filePath.indexOf('*')>-1){
+                        const paths = filePath.split('*');
+                        const subfiles = getSubFiles(paths[0], paths[1], excludePaths);
+                        
+                        for (const fileP of subfiles)
+                        {
+                            lastPromise = compilenext(fileP, defaults, lastPromise);
+                        }
+                    }else{
+                        lastPromise = compilenext(filePath, defaults, lastPromise);
                     }
                 }
                 return lastPromise;
@@ -258,4 +258,40 @@ function ensureDotPrefixed(this: void, extension: string): string
     }
 
     return extension ? `.${extension}` : "";
+}
+
+function getSubFiles(parent, file, excludePaths){
+    let dirList = fs.readdirSync(parent);
+    let paths:string[] = [];
+    dirList.forEach(function(item){
+        let p = path.join(parent, item);
+        if(excludePaths.indexOf(p)<0){
+            p = path.join(p, file);
+            if(fs.existsSync(p)){
+                paths.push(p);
+            }
+        }
+    });
+    return paths;
+}
+
+function promiseChainer(lastPromise: Promise<void>, nextPromise: Promise<void>): Promise<any>{
+    lastPromise.then(() => nextPromise);
+    return nextPromise;
+}
+
+function compilenext(filePath, defaults, lastPromise): Promise<any>{
+    const mainPath: path.ParsedPath = path.parse(filePath);
+    const mainRootFileInfo = Configuration.getRootFileInfo(mainPath);
+    const mainDefaults = extend({}, defaults, { rootFileInfo: mainRootFileInfo });
+    const compilePromise = compile(filePath, mainDefaults);
+    if (lastPromise)
+    {
+        lastPromise = promiseChainer(lastPromise, compilePromise);
+    }
+    else
+    {
+        lastPromise = compilePromise;
+    }
+    return lastPromise;
 }

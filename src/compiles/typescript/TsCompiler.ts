@@ -24,24 +24,23 @@ export function compile(tsFile: string, defaults): Promise<any>
         if (options.main)
         {
             const mainFilePaths: string[] = resolveMainFilePaths(options.main, tsPath, tsFile);
+            if(!options.exclude) options.exclude = [];
+            if(options.excludes) options.exclude = extend([], options.exclude, options.excludes);
+            const excludePaths: string[] = resolveMainFilePaths(options.exclude, tsPath, tsFile);
             let lastPromise: Promise<any> | null = null;
-            let promiseChainer = (lastPromise: Promise<any>, nextPromise: Promise<any>) => lastPromise.then(() => nextPromise);
             if (mainFilePaths && mainFilePaths.length > 0)
             {
                 for (const filePath of mainFilePaths)
                 {
-                    const mainPath: path.ParsedPath = path.parse(filePath);
-                    const mainRootFileInfo = Configuration.getRootFileInfo(mainPath);
-                    const mainDefaults = extend({}, defaults, { rootFileInfo: mainRootFileInfo });
-                    const compilePromise = compile(filePath, mainDefaults);
-
-                    if (lastPromise)
-                    {
-                        lastPromise = promiseChainer(lastPromise, compilePromise);
-                    }
-                    else
-                    {
-                        lastPromise = compilePromise;
+                    if(filePath.indexOf('*')>-1){
+                        const paths = filePath.split('*');
+                        const subfiles = getSubFiles(paths[0], paths[1], excludePaths);
+                        for (const fileP of subfiles)
+                        {
+                            lastPromise = compilenext(fileP, defaults, lastPromise);
+                        }
+                    }else{
+                        lastPromise = compilenext(filePath, defaults, lastPromise);
                     }
                 }
                 return lastPromise;
@@ -91,8 +90,8 @@ export function compile(tsFile: string, defaults): Promise<any>
                 message: message
             });
         });
+
         if( (alld === null || alld.length==0) && options.compress && tsOptions.outFile){
-            console.log(tsOptions.outFile);
             let minifyLib = new MinifyJsCommand(false, false, tsOptions.outFile);
             minifyLib.execute();
         }
@@ -169,4 +168,42 @@ function readFilePromise(this: void, filename: string): Promise<Buffer>
             }
         });
     });
+}
+
+function getSubFiles(parent, file, excludePaths){
+    let dirList = fs.readdirSync(parent);
+    let paths:string[] = [];
+    if(dirList){
+        dirList.forEach(function(item){
+            let p = path.join(parent, item);
+            if(excludePaths.indexOf(p)<0){
+                p = path.join(p, file);
+                if(fs.existsSync(p)){
+                    paths.push(p);
+                }
+            }
+        });
+    }
+    return paths;
+}
+
+function promiseChainer(lastPromise: Promise<void>, nextPromise: Promise<void>): Promise<any>{
+    lastPromise.then(() => nextPromise);
+    return nextPromise;
+}
+
+function compilenext(filePath, defaults, lastPromise): Promise<any>{
+    const mainPath: path.ParsedPath = path.parse(filePath);
+    const mainRootFileInfo = Configuration.getRootFileInfo(mainPath);
+    const mainDefaults = extend({}, defaults, { rootFileInfo: mainRootFileInfo });
+    const compilePromise = compile(filePath, mainDefaults);
+    if (lastPromise)
+    {
+        lastPromise = promiseChainer(lastPromise, compilePromise);
+    }
+    else
+    {
+        lastPromise = compilePromise;
+    }
+    return lastPromise;
 }
