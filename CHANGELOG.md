@@ -19,3 +19,9 @@ Add surround option to minify js.
 
 ### 1.0.3
 Include "Workspace Root/node_modules/@types" with typescript compiler
+
+### 1.0.4
+Add compress option for TSCompiler
+
+### 1.0.5
+suport '*' in main option

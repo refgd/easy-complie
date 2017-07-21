@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy Compile",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.11.0"
