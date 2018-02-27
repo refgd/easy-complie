@@ -1,12 +1,14 @@
 # easy-compile README
 
-Easily work with LESS and TYPESCRIPT files in Visual Studio Code.
+Easily work with LESS and SASS/SCSS and TYPESCRIPT files in Visual Studio Code.
 
-"Compile-on-save" for LESS stylesheets and TypeScript files without using a build task.
+"Compile-on-save" for LESS stylesheets and SASS/SCSS stylesheets and TypeScript files without using a build task.
 
 ## Features
 
-  * Compile TypeScript and Less on save
+  * Compile TypeScript and Less/Sass/Scss on save
+  * Support autoprefixer for Less/Sass/Scss
+  * Support mearge all media queries
   * minify .js and .css files
 
 ## Usage
@@ -20,6 +22,8 @@ Easily work with LESS and TYPESCRIPT files in Visual Studio Code.
 ## Extension Settings
 
 ### Settting
+  easycompile.sass {}
+
   easycompile.less {}
 
   easycompile.typescript {}
@@ -34,7 +38,7 @@ Easily work with LESS and TYPESCRIPT files in Visual Studio Code.
   * Example:
 
     ```less
-    // out: ../dist/app.css, compress: true, sourceMap: false
+    // out: ../dist/app.css, compress: true, sourceMap: false, autoprefixer: last 5 versions, groupmedia: true
     
     body, html {
         ...
@@ -49,7 +53,7 @@ Easily work with LESS and TYPESCRIPT files in Visual Studio Code.
     ```
 
   ### Tips
-  You can set "groupmedia: true" for Less, to mearge all media queries
+  You can set "groupmedia: true" for Less/sass/less, to mearge all media queries
   
 ## Release Notes
 
@@ -79,6 +83,9 @@ Add compress option for TSCompiler
 
 ### 1.0.5
 suport '*' in main option
+
+### 1.0.6
+Add sass/scss support
 
 -----------------------------------------------------------------------------------------------------------
 

@@ -19,6 +19,7 @@
     "onLanguage:less",
     "onLanguage:typescript",
     "onLanguage:scss",
+    "onLanguage:sass",
     "onCommand:easyCompile.compile",
     "onCommand:easyCompile.minifydir",
     "onCommand:easyCompile.minify"
