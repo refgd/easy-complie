@@ -25,3 +25,6 @@ Add compress option for TSCompiler
 
 ### 1.0.5
 suport '*' in main option
+
+### 1.0.6
+Add sass/scss support

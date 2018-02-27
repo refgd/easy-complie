@@ -1,6 +1,6 @@
 var grouper = require('group-css-media-queries');
 
-function getSessGroupProcessor(less) {
+function getSassGroupProcessor(sass) {
 	function GroupProcessor() { };
     GroupProcessor.prototype = {
         process: function (css, extra) {
@@ -11,11 +11,11 @@ function getSessGroupProcessor(less) {
     return GroupProcessor;
 };
 
-function LessPluginGroupMediaQuery() {}
+function SassPluginGroupMediaQuery() {}
 
-LessPluginGroupMediaQuery.prototype = {
-    install: function(less, pluginManager) {
-		var GroupProcessor = getSessGroupProcessor(less);
+SassPluginGroupMediaQuery.prototype = {
+    install: function(sass, pluginManager) {
+		var GroupProcessor = getSassGroupProcessor(sass);
         pluginManager.addPostProcessor(new GroupProcessor());
     },
     printUsage: function () {
@@ -23,4 +23,4 @@ LessPluginGroupMediaQuery.prototype = {
     minVersion: [2, 0, 0]
 };
 
-module.exports = LessPluginGroupMediaQuery;
+module.exports = SassPluginGroupMediaQuery;
