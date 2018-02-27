@@ -24,8 +24,9 @@ class CompileSassCommand
         let compilingMessage = StatusBarMessage.show("$(zap) Compiling sass --> css", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
         let renderPromise = SassCompiler.compile(this.document.fileName, globalOptions)
-            .then(() =>
+            .then((sass: any) =>
             {
+                if(sass) sass.clearFiles();
                 let elapsedTime: number = (Date.now() - startTime);
                 compilingMessage.dispose();
                 this.sassDiagnosticCollection.set(this.document.uri, []);

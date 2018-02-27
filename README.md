@@ -54,38 +54,7 @@ Easily work with LESS and SASS/SCSS and TYPESCRIPT files in Visual Studio Code.
 
   ### Tips
   You can set "groupmedia: true" for Less/sass/less, to mearge all media queries
-  
-## Release Notes
 
-### 1.0.0
-
-Initial release
-
-### 1.0.1
-
-Add minify functions for JS and CSS
-
-### 1.0.2
-
-Add surround option to minify js.
-  * Example:
-    ```json
-    "easycompile.js": {
-      "surround": "(function (define){ ${code} })(define)"
-    }
-    ```
-
-### 1.0.3
-Include "Workspace Root/node_modules/@types" with typescript compiler
-
-### 1.0.4
-Add compress option for TSCompiler
-
-### 1.0.5
-suport '*' in main option
-
-### 1.0.6
-Add sass/scss support
 
 -----------------------------------------------------------------------------------------------------------
 

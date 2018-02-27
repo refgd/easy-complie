@@ -176,10 +176,10 @@ export function compile(sassFile: string, defaults): Promise<void>
                             if (result.map && sourceMapFile)
                             {
                                 return writeFileContents(sourceMapFile, result.map).then(() => {
-                                    resolve();
+                                    resolve(sass);
                                 });
                             }else{
-                                resolve();
+                                resolve(sass);
                             }
                         });
                     }
