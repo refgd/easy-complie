@@ -83,24 +83,45 @@ export function compile(sassFile: string, defaults): Promise<void>
         }
 
         const cssFile = path.resolve(sassPath, cssRelativeFilename);
+        const cssPath: string = path.parse(cssFile).dir;
         delete options.out;
-
-        let sourceMapFile: string;
-        if (options.sourceMap)
-        {
-            sourceMapFile = cssFile + '.map';
-        }
 
         let opts = {
             style: sass.style.expanded
         };
+
+        let sourceMapFile: string;
+        let replaceList:any = {
+            "stdin": path.relative(cssPath, sassFile)
+        };
+        if (options.sourceMap)
+        {
+            const sassRelativeToCss: string = path.relative(cssPath, sassPath);
+
+            const sourceMapOptions = {
+                sourceMapContents: false,
+                sourceMapEmbed: options.sourceMapFileInline,
+                sourceMapRoot: sassRelativeToCss
+                // inputPath: path.basename(sassFile)
+            };
+
+            if(!options.sourceMapFileInline){
+                sourceMapFile = cssFile + '.map';
+            }
+
+            opts = extend({}, opts, sourceMapOptions);
+        }
+
         sass._path = '/'+sassPath.replace(/\\/g, '/').replace(/\:/g, '')+'/';
         sass.importer(function(request, done) {
             if (request.path) {
                 done();
             }else{
-                var requestedPath = path.resolve(sassPath, request.current);
-                var file = sass.findPathVariation(fileExists, requestedPath);
+                let requestedPath = sassPath;
+                if(request.previous != 'stdin')
+                    requestedPath = path.resolve(sassPath, path.dirname(request.previous));
+                requestedPath = path.resolve(requestedPath, request.current);
+                let file = sass.findPathVariation(fileExists, requestedPath);
                 if (!file) {
                     done({
                         error: 'File "' + requestedPath + '" not found',
@@ -110,6 +131,7 @@ export function compile(sassFile: string, defaults): Promise<void>
 
                 readFilePromise(file).then(buffer =>
                 {
+                    replaceList[request.current] = path.relative(cssPath, file);
                     const content: string = buffer.toString();
                     sass.writeFile(request.resolved, content, function() {
                         done({
@@ -170,12 +192,24 @@ export function compile(sassFile: string, defaults): Promise<void>
                                 }
                             });
                         }
-    
+                        
+                        if (result.map && sourceMapFile){
+                            const mapFileUrl: string = path.basename(sourceMapFile);
+                            css += '/*# sourceMappingURL='+mapFileUrl+' */';
+                        }
+                        
                         return writeFileContents(cssFile, css).then(() =>
                         {
                             if (result.map && sourceMapFile)
                             {
-                                return writeFileContents(sourceMapFile, result.map).then(() => {
+
+                                let x;
+                                for(x in result.map.sources){
+                                    let path = result.map.sources[x];
+                                    if(replaceList[path]) result.map.sources[x] = replaceList[path];
+                                }
+                                
+                                return writeFileContents(sourceMapFile, JSON.stringify(result.map)).then(() => {
                                     resolve(sass);
                                 });
                             }else{

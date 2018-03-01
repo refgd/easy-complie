@@ -53,7 +53,7 @@ Easily work with LESS and SASS/SCSS and TYPESCRIPT files in Visual Studio Code.
     ```
 
   ### Tips
-  You can set "groupmedia: true" for Less/sass/less, to mearge all media queries
+  You can set "groupmedia: true" for Less/Sass/Scss, to mearge all media queries
 
 
 -----------------------------------------------------------------------------------------------------------

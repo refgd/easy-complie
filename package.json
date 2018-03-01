@@ -1,8 +1,8 @@
 {
   "name": "easy-compile",
   "displayName": "Easy Compile",
-  "description": "Easy Compile",
-  "version": "1.0.7",
+  "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
+  "version": "1.0.8",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.11.0"
@@ -83,7 +83,54 @@
         "easycompile.sass": {
           "type": "object",
           "description": "Configuration options for SASS/SCSS.",
-          "properties": {}
+          "properties": {
+            "compress": {
+              "type": "boolean",
+              "description": "Compress .css files? (removes unnecessary white-space)",
+              "default": false
+            },
+            "sourceMap": {
+              "type": "boolean",
+              "description": "Should .map files be generated?",
+              "default": false
+            },
+            "sourceMapFileInline": {
+              "type": "boolean",
+              "description": "Should source maps be inlined within the .css file? (requires sourceMap: true)",
+              "default": false
+            },
+            "out": {
+              "type": [
+                "boolean",
+                "string",
+                "null"
+              ],
+              "description": "Default 'out' setting. Set to false to default to no output.",
+              "default": null
+            },
+            "main": {
+              "type": [
+                "string",
+                "array"
+              ],
+              "description": "Compile specific .sass/.scss file(s) when any .sass/.scss file is saved.",
+              "default": "main.scss"
+            },
+            "autoprefixer": {
+              "type": [
+                "string",
+                "array",
+                "null"
+              ],
+              "description": "The 'browsers' argument for autoprefixer plugin (see https://github.com/ai/browserslist#queries)",
+              "default": "last 5 versions"
+            },
+            "groupmedia": {
+              "type": "boolean",
+              "description": "Mearge all media queries",
+              "default": true
+            }
+          }
         },
         "easycompile.less": {
           "type": "object",
@@ -143,7 +190,12 @@
                 "null"
               ],
               "description": "The 'browsers' argument for autoprefixer plugin (see https://github.com/ai/browserslist#queries)",
-              "default": "> 5%, last 2 Chrome versions, not ie 6-9"
+              "default": "last 5 versions"
+            },
+            "groupmedia": {
+              "type": "boolean",
+              "description": "Mearge all media queries",
+              "default": true
             }
           }
         }

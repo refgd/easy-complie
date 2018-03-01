@@ -1,4 +1,7 @@
 # Change Log
+### 1.0.8
+Fix sass import and sourceMap
+
 ### 1.0.7
 Clean cache after sass/scss compile
 
