@@ -1,14 +1,15 @@
 # easy-compile README
 
-Easily work with LESS and SASS/SCSS and TYPESCRIPT files in Visual Studio Code.
+Easily work with LESS/SASS/SCSS/TYPESCRIPT files in Visual Studio Code.
 
-"Compile-on-save" for LESS stylesheets and SASS/SCSS stylesheets and TypeScript files without using a build task.
+"Compile-on-save" for LESS/SASS/SCSS/TypeScript files without using a build task.
 
 ## Features
 
   * Compile TypeScript and Less/Sass/Scss on save
   * Support autoprefixer for Less/Sass/Scss
   * Support mearge all media queries
+  * Support inline setting (Only for Complie)
   * minify .js and .css files
 
 ## Usage

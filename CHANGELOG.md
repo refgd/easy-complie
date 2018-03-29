@@ -1,4 +1,7 @@
 # Change Log
+### 1.0.9
+Fix sass/scss import files ([#2])
+
 ### 1.0.8
 Fix sass import and sourceMap
 

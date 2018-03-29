@@ -120,8 +120,15 @@ export function compile(sassFile: string, defaults): Promise<void>
                 let requestedPath = sassPath;
                 if(request.previous != 'stdin')
                     requestedPath = path.resolve(sassPath, path.dirname(request.previous));
-                requestedPath = path.resolve(requestedPath, request.current);
-                let file = sass.findPathVariation(fileExists, requestedPath);
+                let paths = sass.getPathVariations(request.current);
+                let x, file;
+                for(x in paths){
+                    let realPath = path.resolve(requestedPath, paths[x]);
+                    if(fileExists(realPath)){
+                        file = realPath;
+                        break;
+                    }
+                }
                 if (!file) {
                     done({
                         error: 'File "' + requestedPath + '" not found',
@@ -223,8 +230,12 @@ export function compile(sassFile: string, defaults): Promise<void>
 }
 
 function fileExists(path) {
-    var stat = fs.statSync(path);
-    return stat && stat.isFile();
+    try {
+        var stat = fs.statSync(path);
+        return stat && stat.isFile();
+    }catch(err) {
+    }
+    return false;
 }
 
 
