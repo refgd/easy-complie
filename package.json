@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.11.0"

@@ -142,7 +142,8 @@ export function compile(sassFile: string, defaults): Promise<void>
                     const content: string = buffer.toString();
                     sass.writeFile(request.resolved, content, function() {
                         done({
-                            content: content,
+                            path: replaceList[request.current],
+                            content: content
                         });
                     });
                 }).catch((error: any) =>
@@ -162,47 +163,51 @@ export function compile(sassFile: string, defaults): Promise<void>
                         reject(result);
                     }else{
                         let css = result.text;
-                        if (options.autoprefixer)
-                        {
-                            const LessPluginAutoPrefix = require('less-plugin-autoprefix');
-                            const browsers: string[] = cleanBrowsersList(options.autoprefixer);
-                            const autoprefixPlugin = new LessPluginAutoPrefix({ browsers });
-    
-                            autoprefixPlugin.install(result, {
-                                addPostProcessor: function (postProcessor){
-                                    css = postProcessor.process(css, {});
-                                }
-                            });
-                        }
-    
-                        if (options.groupmedia)
-                        {
-                            const SassPluginGroupMedia = require('./sassPluginGroup');
-                            const sassGroupPlugin = new SassPluginGroupMedia();
-    
-                            sassGroupPlugin.install(result, {
-                                addPostProcessor: function (postProcessor){
-                                    css = postProcessor.process(css, {});
-                                }
-                            });
-                        }
-    
-                        if (options.compress)
-                        {
-                            options.compress = false;
-                            const LessPluginCleanCSS = require('less-plugin-clean-css');
-                            const cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
-    
-                            cleanCSSPlugin.install(result, {
-                                addPostProcessor: function (postProcessor){
-                                    css = postProcessor.process(css, {});
-                                }
-                            });
-                        }
-                        
-                        if (result.map && sourceMapFile){
-                            const mapFileUrl: string = path.basename(sourceMapFile);
-                            css += '/*# sourceMappingURL='+mapFileUrl+' */';
+                        if(css){
+                            if (options.autoprefixer)
+                            {
+                                const LessPluginAutoPrefix = require('less-plugin-autoprefix');
+                                const browsers: string[] = cleanBrowsersList(options.autoprefixer);
+                                const autoprefixPlugin = new LessPluginAutoPrefix({ browsers });
+        
+                                autoprefixPlugin.install(result, {
+                                    addPostProcessor: function (postProcessor){
+                                        css = postProcessor.process(css, {});
+                                    }
+                                });
+                            }
+        
+                            if (options.groupmedia)
+                            {
+                                const SassPluginGroupMedia = require('./sassPluginGroup');
+                                const sassGroupPlugin = new SassPluginGroupMedia();
+        
+                                sassGroupPlugin.install(result, {
+                                    addPostProcessor: function (postProcessor){
+                                        css = postProcessor.process(css, {});
+                                    }
+                                });
+                            }
+        
+                            if (options.compress)
+                            {
+                                options.compress = false;
+                                const LessPluginCleanCSS = require('less-plugin-clean-css');
+                                const cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
+        
+                                cleanCSSPlugin.install(result, {
+                                    addPostProcessor: function (postProcessor){
+                                        css = postProcessor.process(css, {});
+                                    }
+                                });
+                            }
+                            
+                            if (result.map && sourceMapFile){
+                                const mapFileUrl: string = path.basename(sourceMapFile);
+                                css += '/*# sourceMappingURL='+mapFileUrl+' */';
+                            }
+                        }else{
+                            css = "";
                         }
                         
                         return writeFileContents(cssFile, css).then(() =>

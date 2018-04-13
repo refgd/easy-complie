@@ -1,4 +1,8 @@
 # Change Log
+### 1.1.0
+Fix compiler empty file throw error
+Fix sass/scss can not importing files from parent folder
+
 ### 1.0.9
 Fix sass/scss import files ([#2])
 
