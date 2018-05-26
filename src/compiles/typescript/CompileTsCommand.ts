@@ -41,6 +41,10 @@ class CompileTsCommand
 
                     StatusBarMessage.show(`$(check) Typescript compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
                 }
+                else {
+                  compilingMessage.dispose();
+                  StatusBarMessage.show(`$(check) Typescript compiling disabled`, StatusBarMessageTypes.SUCCESS);
+                }
             })
             .catch((error: any) =>
             {
@@ -62,7 +66,7 @@ class CompileTsCommand
                 }
                 else if (error.line !== undefined && error.column !== undefined)
                 {
-                    // less errors, try to highlight the affected range
+                    // typescript errors, try to highlight the affected range
                     let lineIndex: number = error.line - 1;
                     let affectedLine: vscode.TextLine = this.document.lineAt(lineIndex);
                     range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
@@ -72,7 +76,7 @@ class CompileTsCommand
                 let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
                 this.tsDiagnosticCollection.set(this.document.uri, [diagnosis]);
 
-                StatusBarMessage.show("$(alert) Error compiling less (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                StatusBarMessage.show("$(alert) Error compiling typescript (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });
     }
 }
