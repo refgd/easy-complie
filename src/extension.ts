@@ -1,5 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
+import ignore from 'ignore';
 import CompileLessCommand = require("./compiles/less/CompileLessCommand");
 import CompileSassCommand = require("./compiles/sass/CompileSassCommand");
 import CompileTsCommand = require("./compiles/typescript/CompileTsCommand");
@@ -67,9 +68,11 @@ export function activate(context: vscode.ExtensionContext) {
     // automatically compile on save
     let didSaveEvent = vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) =>
     {
+        let compileOptions = Configuration.getGlobalOptions(doc.fileName);
+        let ig = ignore().add(compileOptions.ignore);
         if (doc.fileName.endsWith(LESS_EXT) || doc.fileName.endsWith(TS_EXT) || doc.fileName.endsWith(SASS_EXT) || doc.fileName.endsWith(SCSS_EXT))
         {
-            vscode.commands.executeCommand(COMPILE_COMMAND);
+            if(!ig.ignores(doc.fileName)) vscode.commands.executeCommand(COMPILE_COMMAND);
         }
     });
     
