@@ -159,7 +159,7 @@ export function compile(sassFile: string, defaults): Promise<void>
             {
                 sass.compile(content, opts, result => {
                     if(result.status == 1){
-                        // result.message = result.message;
+                        result.sass = sass;
                         reject(result);
                     }else{
                         let css = result.text;

@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.11.0"
@@ -20,6 +20,8 @@
     "onLanguage:typescript",
     "onLanguage:scss",
     "onLanguage:sass",
+    "onLanguage:css",
+    "onLanguage:javascript",
     "onCommand:easyCompile.compile",
     "onCommand:easyCompile.minifydir",
     "onCommand:easyCompile.minify"
@@ -46,7 +48,7 @@
       "properties": {
         "easycompile.compile": {
           "type": "object",
-          "description": "Configuration options for LESS.",
+          "description": "Configuration options for easycompile.",
           "properties": {
             "less": {
               "type": "boolean",
@@ -62,13 +64,34 @@
               "type": "boolean",
               "description": "Compile Typescript?",
               "default": true
+            },
+            "minifyJsOnSave": {
+              "type": "boolean",
+              "description": "Minify JS file on save?",
+              "default": false
+            },
+            "minifyCssOnSave": {
+              "type": "boolean",
+              "description": "Minify CSS file on save?",
+              "default": false
+            },
+            "ignore": {
+              "type": "array",
+              "description": "Minify CSS file on save?",
+              "default": []
             }
           }
         },
         "easycompile.js": {
           "type": "object",
-          "description": "Configuration options for Javascript.",
-          "properties": {}
+          "description": "Configuration options for minify Javascript.",
+          "properties": {
+            "surround": {
+              "type": "string",
+              "description": "",
+              "default": "(function (define){ ${code} })(define)"
+            }
+          }
         },
         "easycompile.css": {
           "type": "object",
@@ -196,6 +219,11 @@
               "type": "boolean",
               "description": "Mearge all media queries",
               "default": true
+            },
+            "sass2less": {
+              "type": "boolean",
+              "description": "Convert SASS files to LESS",
+              "default": true
             }
           }
         }
@@ -209,17 +237,18 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
+    "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "mocha": "^2.3.3",
+    "vscode": "^1.0.0"
   },
   "dependencies": {
     "group-css-media-queries": "^1.4.1",
-    "ignore": "^4.0.2",
+    "ignore": "^5.0.2",
     "less": "^2.7.2",
     "less-plugin-autoprefix": "^1.5.1",
     "less-plugin-clean-css": "^1.5.1",
+    "less-plugin-sass2less": "^1.2.0",
     "mkpath": "^1.0.0",
     "sass.js": "^0.10.9",
     "typescript": "^2.0.3",

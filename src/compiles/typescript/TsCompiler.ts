@@ -62,7 +62,7 @@ export function compile(tsFile: string, defaults): Promise<any>
         const pathToTypes = path.resolve(intepolatePath('${workspaceRoot}/node_modules/@types'));
         let tsOptions:any = {
             noEmitOnError: true, noImplicitAny: false, sourceMap: false,
-            allowJs: true, removeComments: true,
+            allowJs: true, removeComments: true, listEmittedFiles: true,
             target: ts.ScriptTarget.ES5, module: ts.ModuleKind.AMD,
             typeRoots: [pathToTypes]
         }
@@ -82,18 +82,22 @@ export function compile(tsFile: string, defaults): Promise<any>
         let alld: Array<object> = [];
 
         allDiagnostics.forEach(diagnostic => {
-            let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-            alld.push({
-                lineIndex: line,
-                column: character,
-                message: message
-            });
+            if(diagnostic.file){
+                let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!);
+                let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+                alld.push({
+                    lineIndex: line,
+                    column: character,
+                    message: message
+                });
+            }
         });
-
-        if( (alld === null || alld.length==0) && options.compress && tsOptions.outFile){
-            let minifyLib = new MinifyJsCommand(false, false, tsOptions.outFile);
-            minifyLib.execute();
+        
+        if( (alld === null || alld.length==0) && options.compress && emitResult.emittedFiles){
+            emitResult.emittedFiles.forEach(file => {
+                let minifyLib = new MinifyJsCommand(false, false, file);
+                minifyLib.execute();
+            });
         }
 
         return returnPromise(alld);

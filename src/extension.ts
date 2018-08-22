@@ -65,14 +65,25 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
     
-    // automatically compile on save
+    // automatically compile/minfy on save
     let didSaveEvent = vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) =>
     {
         let compileOptions = Configuration.getGlobalOptions(doc.fileName);
-        let ig = ignore().add(compileOptions.ignore);
+        if(compileOptions.ignore){
+            const ig = ignore().add(compileOptions.ignore);
+            if(ig.ignores(doc.fileName)) return;
+        }
         if (doc.fileName.endsWith(LESS_EXT) || doc.fileName.endsWith(TS_EXT) || doc.fileName.endsWith(SASS_EXT) || doc.fileName.endsWith(SCSS_EXT))
         {
-            if(!ig.ignores(doc.fileName)) vscode.commands.executeCommand(COMPILE_COMMAND);
+            vscode.commands.executeCommand(COMPILE_COMMAND);
+        }else if (doc.fileName.endsWith(JS_EXT) && compileOptions.minifyJsOnSave)
+        {
+            let minifyLib = new MinifyJsCommand(doc, DiagnosticCollection);
+            minifyLib.execute();
+        }else if (doc.fileName.endsWith(CSS_EXT) && compileOptions.minifyCssOnSave)
+        {
+            let minifyLib = new MinifyCssCommand(doc, DiagnosticCollection);
+            minifyLib.execute();
         }
     });
     

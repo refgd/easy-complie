@@ -1,4 +1,9 @@
 # Change Log
+### 1.1.1
+Add minify on save option ([#1])
+Integrate sass2less plugin. ([#12])
+Fix sass/scss compile bug ([#9])
+
 ### 1.1.0
 Fix compiler empty file throw error
 Fix sass/scss can not importing files from parent folder

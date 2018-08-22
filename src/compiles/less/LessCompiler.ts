@@ -112,6 +112,13 @@ export function compile(lessFile: string, defaults): Promise<void>
 
         // plugins
         options.plugins = [];
+        if (options.sass2less !== false)
+        {
+            const LessPluginSass2less = require('less-plugin-sass2less');
+            // const sass2lessPlugin = new LessPluginSass2less();
+            options.plugins.push(LessPluginSass2less);
+        }
+
         if (options.autoprefixer)
         {
             const LessPluginAutoPrefix = require('less-plugin-autoprefix');

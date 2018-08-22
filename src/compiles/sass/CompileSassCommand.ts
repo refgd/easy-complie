@@ -35,6 +35,7 @@ class CompileSassCommand
             })
             .catch((error: any) =>
             {
+                if(error.sass) error.sass.clearFiles();
                 let message: string = error.message;
                 let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
