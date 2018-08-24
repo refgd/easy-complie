@@ -1,4 +1,7 @@
 # Change Log
+### 1.1.2
+Upgrade Less complier to 3.8.1 ([#15])
+
 ### 1.1.1
 Add minify on save option ([#1])
 Integrate sass2less plugin. ([#12])

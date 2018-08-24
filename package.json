@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.11.0"
@@ -245,7 +245,7 @@
   "dependencies": {
     "group-css-media-queries": "^1.4.1",
     "ignore": "^5.0.2",
-    "less": "^2.7.2",
+    "less": "^3.8.1",
     "less-plugin-autoprefix": "^1.5.1",
     "less-plugin-clean-css": "^1.5.1",
     "less-plugin-sass2less": "^1.2.0",
