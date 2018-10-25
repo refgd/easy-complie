@@ -72,7 +72,7 @@ class MinifyJsCommand
             {
                 let content: string = buffer.toString();
                 if(typeof opts.surround == "string" && opts.surround != ''){
-                    content = opts.surround.replace(/\$\{code\}/g, content);
+                    content = opts.surround.replace(/\$\{code\}/g, content.replace(/\$/g, '$$$$'));
                 }
                 let results = minjs.minify(content, opts);
                 return writeFileContents(filename, results.code);
