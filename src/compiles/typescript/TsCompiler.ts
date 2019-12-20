@@ -5,9 +5,10 @@ import * as extend from 'extend'
 import * as fs from 'fs'
 import * as vscode from 'vscode';
 
-import Configuration = require("../../Configuration");
-import FileOptionsParser = require("../../FileOptionsParser");
-import MinifyJsCommand = require("../../minify/js/MinifyJsCommand");
+import * as Configuration from "../../Configuration";
+import * as FileOptionsParser from "../../FileOptionsParser";
+import {MinifyJsCommand} from "../../minify/js/MinifyJsCommand";
+import { isArray } from "util"
 
 const DEFAULT_EXT = ".js";
 
@@ -75,6 +76,14 @@ export function compile(tsFile: string, defaults): Promise<any>
         {
             tsOptions = extend({}, tsOptions, {outDir: resolveFilePath(outdir, tsPath, tsFile)});
         }
+        
+        if(isArray(tsOptions.lib)){
+            tsOptions.lib.forEach((o, i, a) => o.indexOf('.d.')>-1?null:a[i]="lib."+o+".d.ts");
+        }
+        // ts.sys.getExecutingFilePath = function(){
+        //     return path.resolve(__dirname, '../node_modules/typescript/lib/lib.d.s');
+        // }
+        
         let program = ts.createProgram([tsFile], tsOptions);
         let emitResult = program.emit();
 
@@ -114,8 +123,10 @@ function returnPromise(obj:any): Promise<any>
 
 function intepolatePath(this: void, path: string): string
 {
-    if(vscode.workspace.rootPath)
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, vscode.workspace.rootPath);
+    if(vscode.workspace.workspaceFolders){
+        let rootPath = vscode.workspace.workspaceFolders[0];
+        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
+    }
     return path;
 }
 

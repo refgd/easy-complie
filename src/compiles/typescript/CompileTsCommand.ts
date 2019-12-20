@@ -1,14 +1,11 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as extend from 'extend';
 
-import Configuration = require("../../Configuration");
-import StatusBarMessage = require("../../StatusBarMessage");
-import StatusBarMessageTypes = require("../../StatusBarMessageTypes");
-import TsCompiler = require("./TsCompiler");
+import * as Configuration from "../../Configuration";
+import * as StatusBarMessage from "../../StatusBarMessage";
+import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
+import * as TsCompiler from "./TsCompiler";
 
-class CompileTsCommand
+export class CompileTsCommand
 {
     public constructor(
         private document: vscode.TextDocument,
@@ -19,16 +16,16 @@ class CompileTsCommand
     public execute()
     {
         StatusBarMessage.hideError();
-
+        
         let globalOptions = Configuration.getGlobalOptions(this.document.fileName, 'typescript');
         let compilingMessage = StatusBarMessage.show("$(zap) Compiling ts --> js", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
         let renderPromise = TsCompiler.compile(this.document.fileName, globalOptions)
             .then((allDiagnostics) =>
             {
+                compilingMessage.dispose();
                 if(allDiagnostics !== null){
                     let elapsedTime: number = (Date.now() - startTime);
-                    compilingMessage.dispose();
 
                     let alld: Array<vscode.Diagnostic> = [];
                     allDiagnostics.forEach(diagnostic => {
@@ -42,12 +39,12 @@ class CompileTsCommand
                     StatusBarMessage.show(`$(check) Typescript compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
                 }
                 else {
-                  compilingMessage.dispose();
                   StatusBarMessage.show(`$(check) Typescript compiling disabled`, StatusBarMessageTypes.SUCCESS);
                 }
             })
             .catch((error: any) =>
             {
+                compilingMessage.dispose();
                 let message: string = error.message;
                 let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
@@ -72,7 +69,6 @@ class CompileTsCommand
                     range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
                 }
 
-                compilingMessage.dispose();
                 let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
                 this.tsDiagnosticCollection.set(this.document.uri, [diagnosis]);
 
@@ -80,5 +76,3 @@ class CompileTsCommand
             });
     }
 }
-
-export = CompileTsCommand;

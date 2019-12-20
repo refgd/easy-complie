@@ -1,4 +1,4 @@
-import StatusBarMessageTypes = require("./StatusBarMessageTypes");
+import {StatusBarMessageTypes} from "./StatusBarMessageTypes";
 import * as vscode from 'vscode';
 
 const ERROR_COLOR_CSS = "rgba(255,125,0,1)";

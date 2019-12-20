@@ -5,8 +5,8 @@ import * as extend from 'extend';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
-import Configuration = require("../../Configuration");
-import FileOptionsParser = require("../../FileOptionsParser");
+import * as Configuration from "../../Configuration";
+import * as FileOptionsParser from "../../FileOptionsParser";
 
 const DEFAULT_EXT = ".css";
 
@@ -192,7 +192,7 @@ export function compile(sassFile: string, defaults): Promise<void>
                             if (options.compress)
                             {
                                 options.compress = false;
-                                const LessPluginCleanCSS = require('less-plugin-clean-css');
+                                const LessPluginCleanCSS = require('../less/lessPluginCleanCss');
                                 const cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
         
                                 cleanCSSPlugin.install(result, {
@@ -201,10 +201,13 @@ export function compile(sassFile: string, defaults): Promise<void>
                                     }
                                 });
                             }
-                            
-                            if (result.map && sourceMapFile){
-                                const mapFileUrl: string = path.basename(sourceMapFile);
-                                css += '/*# sourceMappingURL='+mapFileUrl+' */';
+                            if (result.map){
+                                if(sourceMapFile){
+                                    const mapFileUrl: string = path.basename(sourceMapFile);
+                                    css += "\n"+'/*# sourceMappingURL='+mapFileUrl+' */';
+                                }else{
+                                    css += "\n"+'/*# sourceMappingURL=data:application/json;charset=utf-8;base64,'+Buffer.from(JSON.stringify(result.map)).toString("base64")+'  */';
+                                }
                             }
                         }else{
                             css = "";
@@ -261,8 +264,10 @@ function cleanBrowsersList(autoprefixOption: string | string[]): string[]
 
 function intepolatePath(this: void, path: string): string
 {
-    if(vscode.workspace.rootPath)
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, vscode.workspace.rootPath);
+    if(vscode.workspace.workspaceFolders){
+        let rootPath = vscode.workspace.workspaceFolders[0];
+        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
+    }
     return path;
 }
 

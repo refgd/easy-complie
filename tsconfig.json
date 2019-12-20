@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node",
         "module": "commonjs",
         "target": "es6",
         "outDir": "out",
@@ -8,8 +9,13 @@
         ],
         "sourceMap": true,
         "rootDir": ".",
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "skipLibCheck": true,
     },
+    "include": [
+      "src/*.ts",
+      "src/**/*.ts"
+    ],
     "exclude": [
         "node_modules",
         ".vscode-test"

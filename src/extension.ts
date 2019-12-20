@@ -1,12 +1,20 @@
 'use strict';
 import * as vscode from 'vscode';
+import * as Configuration from "./Configuration";
 import ignore from 'ignore';
-import CompileLessCommand = require("./compiles/less/CompileLessCommand");
-import CompileSassCommand = require("./compiles/sass/CompileSassCommand");
-import CompileTsCommand = require("./compiles/typescript/CompileTsCommand");
-import MinifyJsCommand = require("./minify/js/MinifyJsCommand");
-import MinifyCssCommand = require("./minify/css/MinifyCssCommand");
-import Configuration = require("./Configuration");
+
+const impor = require('impor')(__dirname);
+// const LessCompiler = impor("./compiles/less/CompileLessCommand") as typeof import('./compiles/less/CompileLessCommand');
+// const SassCompiler = impor("./compiles/sass/CompileSassCommand") as typeof import('./compiles/sass/CompileSassCommand');
+// const TsCompiler = impor("./compiles/typescript/CompileTsCommand") as typeof import('./compiles/typescript/CompileTsCommand');
+// const JsCompiler = impor("./minify/js/MinifyJsCommand") as typeof import('./minify/js/MinifyJsCommand');
+// const CssCompiler = impor("./minify/css/MinifyCssCommand") as typeof import("./minify/css/MinifyCssCommand");
+
+// const CompileLessCommand = require("./compiles/less/CompileLessCommand");
+// const CompileSassCommand = require("./compiles/sass/CompileSassCommand");
+// const CompileTsCommand = require("./compiles/typescript/CompileTsCommand");
+// const MinifyJsCommand = require("./minify/js/MinifyJsCommand");
+// const MinifyCssCommand = require("./minify/css/MinifyCssCommand");
 
 const LESS_EXT = ".less";
 const SASS_EXT = ".sass";
@@ -18,12 +26,31 @@ const COMPILE_COMMAND = "easyCompile.compile";
 const MINIFY_COMMAND = "easyCompile.minify";
 const MINIFYDIR_COMMAND = "easyCompile.minifydir";
 
-let DiagnosticCollection;
+let DiagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(context: vscode.ExtensionContext) {
 
     DiagnosticCollection = vscode.languages.createDiagnosticCollection();
-
+    let runCommand = function (type: string, document: vscode.TextDocument){
+        let organise;
+        if(type == LESS_EXT){
+            const LessCompiler = impor("./compiles/less/CompileLessCommand") as typeof import('./compiles/less/CompileLessCommand');
+            organise = new LessCompiler.CompileLessCommand(document, DiagnosticCollection);
+        }else if(type == SASS_EXT){
+            const SassCompiler = impor("./compiles/sass/CompileSassCommand") as typeof import('./compiles/sass/CompileSassCommand');
+            organise = new SassCompiler.CompileSassCommand(document, DiagnosticCollection);
+        }else if(type == TS_EXT){
+            const TsCompiler = impor("./compiles/typescript/CompileTsCommand") as typeof import('./compiles/typescript/CompileTsCommand');
+            organise = new TsCompiler.CompileTsCommand(document, DiagnosticCollection);
+        }else if(type == CSS_EXT){
+            const CssCompiler = impor("./minify/css/MinifyCssCommand") as typeof import("./minify/css/MinifyCssCommand");
+            organise = new CssCompiler.MinifyCssCommand(document, DiagnosticCollection);
+        }else if(type == JS_EXT){
+            const JsCompiler = impor("./minify/js/MinifyJsCommand") as typeof import('./minify/js/MinifyJsCommand');
+            organise = new JsCompiler.MinifyJsCommand(document, DiagnosticCollection);
+        }
+        organise.execute();
+    }
     // compile command
     let compileCommand = vscode.commands.registerCommand(COMPILE_COMMAND, () =>
     {
@@ -34,23 +61,19 @@ export function activate(context: vscode.ExtensionContext) {
             if (document)
             {
                 let compileOptions = Configuration.getGlobalOptions(document.fileName);
-                let organise;
                 if(document.fileName.endsWith(LESS_EXT)){
                     if(typeof compileOptions.less === "undefined" || compileOptions.less === true){
-                        organise = new CompileLessCommand(document, DiagnosticCollection);
-                        organise.execute();
+                        runCommand(LESS_EXT, document);
                     }
                 }
                 else if(document.fileName.endsWith(TS_EXT)){
                     if(typeof compileOptions.typescript === "undefined" || compileOptions.typescript === true){
-                        organise = new CompileTsCommand(document, DiagnosticCollection);
-                        organise.execute();
+                        runCommand(TS_EXT, document);
                     }
                 }
                 else if(document.fileName.endsWith(SASS_EXT) || document.fileName.endsWith(SCSS_EXT)){
                     if(typeof compileOptions.sass === "undefined" || compileOptions.sass === true){
-                        organise = new CompileSassCommand(document, DiagnosticCollection);
-                        organise.execute();
+                        runCommand(SASS_EXT, document);
                     }
                 }
                 else
@@ -66,33 +89,31 @@ export function activate(context: vscode.ExtensionContext) {
     });
     
     // automatically compile/minfy on save
-    let didSaveEvent = vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) =>
+    let didSaveEvent = vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) =>
     {
-        let compileOptions = Configuration.getGlobalOptions(doc.fileName);
+        let compileOptions = Configuration.getGlobalOptions(document.fileName);
         if(compileOptions.ignore){
             const ig = ignore().add(compileOptions.ignore);
-            if(ig.ignores(doc.fileName)) return;
+            if(ig.ignores(document.fileName)) return;
         }
-        if (doc.fileName.endsWith(LESS_EXT) || doc.fileName.endsWith(TS_EXT) || doc.fileName.endsWith(SASS_EXT) || doc.fileName.endsWith(SCSS_EXT))
+        if (document.fileName.endsWith(LESS_EXT) || document.fileName.endsWith(TS_EXT) || document.fileName.endsWith(SASS_EXT) || document.fileName.endsWith(SCSS_EXT))
         {
             vscode.commands.executeCommand(COMPILE_COMMAND);
-        }else if (doc.fileName.endsWith(JS_EXT) && compileOptions.minifyJsOnSave)
+        }else if (document.fileName.endsWith(JS_EXT) && compileOptions.minifyJsOnSave)
         {
-            let minifyLib = new MinifyJsCommand(doc, DiagnosticCollection);
-            minifyLib.execute();
-        }else if (doc.fileName.endsWith(CSS_EXT) && compileOptions.minifyCssOnSave)
+            runCommand(JS_EXT, document);
+        }else if (document.fileName.endsWith(CSS_EXT) && compileOptions.minifyCssOnSave)
         {
-            let minifyLib = new MinifyCssCommand(doc, DiagnosticCollection);
-            minifyLib.execute();
+            runCommand(CSS_EXT, document);
         }
     });
     
     // dismiss less/sass/scss errors on file close
-    let didCloseEvent = vscode.workspace.onDidCloseTextDocument((doc: vscode.TextDocument) =>
+    let didCloseEvent = vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) =>
     {
-        if (doc.fileName.endsWith(LESS_EXT) || doc.fileName.endsWith(SASS_EXT) || doc.fileName.endsWith(SCSS_EXT))
+        if (document.fileName.endsWith(LESS_EXT) || document.fileName.endsWith(SASS_EXT) || document.fileName.endsWith(SCSS_EXT))
         {
-            DiagnosticCollection.delete(doc.uri);
+            DiagnosticCollection.delete(document.uri);
         }
     })
 
@@ -107,12 +128,10 @@ export function activate(context: vscode.ExtensionContext) {
             {
                 let minifyLib;
                 if(document.fileName.endsWith(JS_EXT)){
-                    minifyLib = new MinifyJsCommand(document, DiagnosticCollection);
-                    minifyLib.execute();
+                    runCommand(JS_EXT, document);
                 }
                 else if(document.fileName.endsWith(CSS_EXT)){
-                    minifyLib = new MinifyCssCommand(document, DiagnosticCollection);
-                    minifyLib.execute();
+                    runCommand(CSS_EXT, document);
                 }
                 else
                 {

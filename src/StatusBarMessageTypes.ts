@@ -1,9 +1,7 @@
 
-const enum StatusBarMessageTypes
+export const enum StatusBarMessageTypes
 {
     SUCCESS,
     INDEFINITE,
     ERROR
 }
-
-export = StatusBarMessageTypes;

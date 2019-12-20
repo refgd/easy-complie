@@ -5,8 +5,8 @@ import * as extend from 'extend'
 import * as fs from 'fs'
 import * as vscode from 'vscode';
 
-import Configuration = require("../../Configuration");
-import FileOptionsParser = require("../../FileOptionsParser");
+import * as Configuration from "../../Configuration";
+import * as FileOptionsParser from "../../FileOptionsParser";
 
 const DEFAULT_EXT = ".css";
 
@@ -138,7 +138,7 @@ export function compile(lessFile: string, defaults): Promise<void>
         if (options.compress)
         {
             options.compress = false;
-            const LessPluginCleanCSS = require('less-plugin-clean-css');
+            const LessPluginCleanCSS = require('./lessPluginCleanCss');
             const cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
             options.plugins.push(cleanCSSPlugin);
         }
@@ -180,8 +180,10 @@ function cleanBrowsersList(autoprefixOption: string | string[]): string[]
 
 function intepolatePath(this: void, path: string): string
 {
-    if(vscode.workspace.rootPath)
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, vscode.workspace.rootPath);
+    if(vscode.workspace.workspaceFolders){
+        let rootPath = vscode.workspace.workspaceFolders[0];
+        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
+    }
     return path;
 }
 

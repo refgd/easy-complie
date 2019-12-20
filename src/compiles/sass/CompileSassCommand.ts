@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as extend from 'extend';
 
-import Configuration = require("../../Configuration");
-import SassCompiler = require("./SassCompiler");
-import StatusBarMessage = require("../../StatusBarMessage");
-import StatusBarMessageTypes = require("../../StatusBarMessageTypes");
+import * as Configuration from "../../Configuration";
+import * as StatusBarMessage from "../../StatusBarMessage";
+import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 
-class CompileSassCommand
+import * as SassCompiler from "./SassCompiler";
+// const impor = require('impor')(__dirname);
+// const SassCompiler = impor("./SassCompiler") as typeof import('./SassCompiler');
+
+export class CompileSassCommand
 {
     public constructor(
         private document: vscode.TextDocument,
@@ -19,22 +19,22 @@ class CompileSassCommand
     public execute()
     {
         StatusBarMessage.hideError();
-
         let globalOptions = Configuration.getGlobalOptions(this.document.fileName, 'sass');
         let compilingMessage = StatusBarMessage.show("$(zap) Compiling sass --> css", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
         let renderPromise = SassCompiler.compile(this.document.fileName, globalOptions)
             .then((sass: any) =>
             {
+                compilingMessage.dispose();
                 if(sass) sass.clearFiles();
                 let elapsedTime: number = (Date.now() - startTime);
-                compilingMessage.dispose();
                 this.sassDiagnosticCollection.set(this.document.uri, []);
 
                 StatusBarMessage.show(`$(check) Sass compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             })
             .catch((error: any) =>
             {
+                compilingMessage.dispose();
                 if(error.sass) error.sass.clearFiles();
                 let message: string = error.message;
                 let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
@@ -60,7 +60,6 @@ class CompileSassCommand
                     range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
                 }
 
-                compilingMessage.dispose();
                 let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
                 this.sassDiagnosticCollection.set(this.document.uri, [diagnosis]);
 
@@ -68,5 +67,3 @@ class CompileSassCommand
             });
     }
 }
-
-export = CompileSassCommand;

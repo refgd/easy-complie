@@ -2,11 +2,12 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "publisher": "refgd",
   "engines": {
-    "vscode": "^1.11.0"
+    "vscode": "^1.34.0"
   },
+  "license": "MIT",
   "categories": [
     "Other"
   ],
@@ -232,26 +233,35 @@
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
+    "webpack": "webpack --mode production",
+    "webpack-dev": "webpack --mode development",
     "compile": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "node ./node_modules/vscode/bin/test"
+    "test": "tsc -p ./"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "mocha": "^2.3.3",
-    "vscode": "^1.0.0"
+    "@types/vscode": "^1.34.0",
+    "fork-ts-checker-webpack-plugin": "^4.0.0-beta.4",
+    "fs-plus": "^3.1.1",
+    "ts-loader": "^6.2.1",
+    "vscode-test": "^1.3.0",
+    "webpack": "^4.41.4",
+    "webpack-cli": "^3.3.10",
+    "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "clean-css": "^4.2.1",
     "group-css-media-queries": "^1.4.1",
     "ignore": "^5.0.2",
+    "impor": "^0.1.1",
     "less": "^3.8.1",
-    "less-plugin-autoprefix": "^1.5.1",
-    "less-plugin-clean-css": "^1.5.1",
+    "less-plugin-autoprefix": "^2.0.0",
+    "less-plugin-functions": "0.0.2",
     "less-plugin-sass2less": "^1.2.0",
     "mkpath": "^1.0.0",
-    "sass.js": "^0.10.9",
-    "typescript": "^2.0.3",
-    "uglify-js": "^2.8.22"
+    "sass.js": "^0.11.1",
+    "typescript": "^3.7.3",
+    "uglify-js": "^3.7.2"
   }
 }

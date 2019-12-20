@@ -1,4 +1,9 @@
 # Change Log
+### 1.1.4
+Upgrade dependencies
+Speed up extension
+Fix sass/scss inline source map ([#19])
+
 ### 1.1.2
 Upgrade Less complier to 3.8.1 ([#15])
 

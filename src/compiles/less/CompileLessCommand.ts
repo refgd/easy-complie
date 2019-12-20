@@ -1,14 +1,13 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as extend from 'extend';
 
-import Configuration = require("../../Configuration");
-import LessCompiler = require("./LessCompiler");
-import StatusBarMessage = require("../../StatusBarMessage");
-import StatusBarMessageTypes = require("../../StatusBarMessageTypes");
+import * as Configuration from "../../Configuration";
+import * as StatusBarMessage from "../../StatusBarMessage";
+import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 
-class CompileLessCommand
+import * as LessCompiler from "./LessCompiler";
+// const impor = require('impor')(__dirname);
+// const LessCompiler = impor("./LessCompiler") as typeof import('./LessCompiler');
+export class CompileLessCommand
 {
     public constructor(
         private document: vscode.TextDocument,
@@ -26,14 +25,15 @@ class CompileLessCommand
         let renderPromise = LessCompiler.compile(this.document.fileName, globalOptions)
             .then(() =>
             {
-                let elapsedTime: number = (Date.now() - startTime);
                 compilingMessage.dispose();
+                let elapsedTime: number = (Date.now() - startTime);
                 this.lessDiagnosticCollection.set(this.document.uri, []);
 
                 StatusBarMessage.show(`$(check) Less compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             })
             .catch((error: any) =>
             {
+                compilingMessage.dispose();
                 let message: string = error.message;
                 let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
@@ -58,7 +58,6 @@ class CompileLessCommand
                     range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
                 }
 
-                compilingMessage.dispose();
                 let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
                 this.lessDiagnosticCollection.set(this.document.uri, [diagnosis]);
 
@@ -66,5 +65,3 @@ class CompileLessCommand
             });
     }
 }
-
-export = CompileLessCommand;

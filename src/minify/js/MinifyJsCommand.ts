@@ -4,12 +4,13 @@ import * as fs from 'fs';
 import * as extend from 'extend';
 import * as mkpath from 'mkpath'
 
-import minjs = require('uglify-js');
-import Configuration = require("../../Configuration");
-import StatusBarMessage = require("../../StatusBarMessage");
-import StatusBarMessageTypes = require("../../StatusBarMessageTypes");
+import * as Configuration from "../../Configuration";
+import * as StatusBarMessage from "../../StatusBarMessage";
+import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 
-class MinifyJsCommand
+const minjs = require('uglify-js');
+
+export class MinifyJsCommand
 {
     public constructor(
         private document: any,
@@ -23,41 +24,13 @@ class MinifyJsCommand
         StatusBarMessage.hideError();
 
         let opts = {
-            "mangleProperties": {
-                regex: /^_/
+            "mangle": {
+                "properties":{
+                    "regex": /^_/
+                }
             },
-            "fromString": true,
             "surround": "(function (define){ ${code} })(define)",
-            "compress": {
-                "sequences": true,
-                "properties": true,
-                "dead_code": true,
-                "drop_debugger": true,
-                "unsafe": true,
-                "unsafe_comps": true,
-                "conditionals": true,
-                "comparisons": true,
-                "evaluate": true,
-                "booleans": true,
-                "loops": true,
-                "unused": true,
-                "hoist_funs": true,
-                "keep_fargs": true,
-                "keep_fnames": false,
-                "hoist_vars": false,
-                "if_return": true,
-                "join_vars": true,
-                "collapse_vars": true,
-                "reduce_vars": true,
-                "cascade": true,
-                "side_effects": true,
-                "pure_getters": false,
-                "pure_funcs": null,
-                "negate_iife": false,
-                "drop_console": false,
-                "passes": 1,
-                "global_defs": {}
-            }
+            "compress": {}
         };
 
         let filename;
@@ -74,7 +47,15 @@ class MinifyJsCommand
                 if(typeof opts.surround == "string" && opts.surround != ''){
                     content = opts.surround.replace(/\$\{code\}/g, content.replace(/\$/g, '$$$$'));
                 }
-                let results = minjs.minify(content, opts);
+                let uglifyOptions = {
+                    "mangle": opts.mangle,
+                    "compress": opts.compress,
+                };
+                if(opts.hasOwnProperty('uglifyOptions')){
+                    uglifyOptions = Object.assign({}, uglifyOptions, opts['uglifyOptions']);
+                }
+                let results = minjs.minify(content, uglifyOptions);
+                if(results.error) throw new Error(results.error);
                 return writeFileContents(filename, results.code);
             }).then(() =>
             {
@@ -111,17 +92,17 @@ class MinifyJsCommand
                         range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
                     }
 
-                    compilingMessage.dispose();
                     let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
                     this.lessDiagnosticCollection.set(this.document.uri, [diagnosis]);
+                }else{
+                    vscode.window.showErrorMessage(error.message);
                 }
 
-                StatusBarMessage.show("$(alert) Error compiling less (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                compilingMessage.dispose();
+                StatusBarMessage.show("$(alert) Error minify js (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });
     }
 }
-
-export = MinifyJsCommand;
 
 
 function writeFileContents(this: void, filepath: string, content: any): Promise<any>

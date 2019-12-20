@@ -4,13 +4,13 @@ import * as fs from 'fs';
 import * as extend from 'extend';
 import * as mkpath from 'mkpath';
 
-import CleanCSS = require("clean-css");
-import minjs = require('uglify-js');
-import Configuration = require("../../Configuration");
-import StatusBarMessage = require("../../StatusBarMessage");
-import StatusBarMessageTypes = require("../../StatusBarMessageTypes");
+import * as Configuration from "../../Configuration";
+import * as StatusBarMessage from "../../StatusBarMessage";
+import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 
-class MinifyCssCommand
+const CleanCSS = require("clean-css");
+
+export class MinifyCssCommand
 {
     public constructor(
         private document: vscode.TextDocument,
@@ -44,13 +44,14 @@ class MinifyCssCommand
                 return writeFileContents(this.document.fileName, output.styles);
             }).then(() =>
             {
-                let elapsedTime: number = (Date.now() - startTime);
                 compilingMessage.dispose();
+                let elapsedTime: number = (Date.now() - startTime);
                 this.lessDiagnosticCollection.set(this.document.uri, []);
 
                 StatusBarMessage.show(`$(check) Css minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             }).catch((error: any) =>
             {
+                compilingMessage.dispose();
                 let message: string = error.message;
                 let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
@@ -75,16 +76,13 @@ class MinifyCssCommand
                     range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
                 }
 
-                compilingMessage.dispose();
                 let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
                 this.lessDiagnosticCollection.set(this.document.uri, [diagnosis]);
 
-                StatusBarMessage.show("$(alert) Error compiling less (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                StatusBarMessage.show("$(alert) Error minify css (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });
     }
 }
-
-export = MinifyCssCommand;
 
 
 function writeFileContents(this: void, filepath: string, content: any): Promise<any>
