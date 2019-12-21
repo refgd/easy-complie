@@ -25,18 +25,19 @@ export class CompileTsCommand
             {
                 compilingMessage.dispose();
                 if(allDiagnostics !== null){
-                    let elapsedTime: number = (Date.now() - startTime);
+                    if(allDiagnostics.length>0){
 
-                    let alld: Array<vscode.Diagnostic> = [];
-                    allDiagnostics.forEach(diagnostic => {
-                        let affectedLine: vscode.TextLine = this.document.lineAt(diagnostic.lineIndex);
-                        let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
-                        range = new vscode.Range(diagnostic.lineIndex, diagnostic.column, diagnostic.lineIndex, affectedLine.range.end.character);
-                        alld.push(new vscode.Diagnostic(range, diagnostic.message, vscode.DiagnosticSeverity.Error));
-                    });
-                    this.tsDiagnosticCollection.set(this.document.uri, alld);
-
-                    StatusBarMessage.show(`$(check) Typescript compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
+                    }else{
+                        let elapsedTime: number = (Date.now() - startTime);
+    
+                        let alld: Array<vscode.Diagnostic> = [];
+                        allDiagnostics.forEach(diagnostic => {
+                            alld.push(StatusBarMessage.getDiagnostic(diagnostic));
+                        });
+                        this.tsDiagnosticCollection.set(this.document.uri, alld);
+    
+                        StatusBarMessage.show(`$(check) Typescript compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
+                    }
                 }
                 else {
                   StatusBarMessage.show(`$(check) Typescript compiling disabled`, StatusBarMessageTypes.SUCCESS);
@@ -45,34 +46,13 @@ export class CompileTsCommand
             .catch((error: any) =>
             {
                 compilingMessage.dispose();
-                let message: string = error.message;
-                let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
                 let uri:vscode.Uri = this.document.uri;
                 if(error.filename && this.document.fileName != error.filename){
                     uri = vscode.Uri.parse(error.filename);
                 }
 
-                if (error.code)
-                {
-                    // fs errors
-                    let fileSystemError = error;
-                    switch (fileSystemError.code)
-                    {
-                        case 'EACCES':
-                        case 'ENOENT':
-                            message = `Cannot open file '${fileSystemError.path}'`;
-                    }
-                }
-                else if (error.line !== undefined && error.column !== undefined)
-                {
-                    // typescript errors, try to highlight the affected range
-                    let lineIndex: number = error.line - 1;
-                    range = new vscode.Range(lineIndex, error.column, lineIndex, 0);
-                }
-
-                let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
-                this.tsDiagnosticCollection.set(uri, [diagnosis]);
+                this.tsDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling typescript (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });

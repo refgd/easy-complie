@@ -1,5 +1,4 @@
 import * as ts from "typescript"
-import * as mkpath from 'mkpath'
 import * as path from 'path'
 import * as extend from 'extend'
 import * as fs from 'fs'
@@ -80,9 +79,6 @@ export function compile(tsFile: string, defaults): Promise<any>
         if(isArray(tsOptions.lib)){
             tsOptions.lib.forEach((o, i, a) => o.indexOf('.d.')>-1?null:a[i]="lib."+o+".d.ts");
         }
-        // ts.sys.getExecutingFilePath = function(){
-        //     return path.resolve(__dirname, '../node_modules/typescript/lib/lib.d.s');
-        // }
         
         let program = ts.createProgram([tsFile], tsOptions);
         let emitResult = program.emit();
@@ -91,20 +87,27 @@ export function compile(tsFile: string, defaults): Promise<any>
         let alld: Array<object> = [];
 
         allDiagnostics.forEach(diagnostic => {
+            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
             if(diagnostic.file){
                 let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!);
-                let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
                 alld.push({
                     lineIndex: line,
                     column: character,
+                    message: message
+                });
+            }else{
+                alld.push({
+                    code: diagnostic.code,
                     message: message
                 });
             }
         });
         
         if( (alld === null || alld.length==0) && options.compress && emitResult.emittedFiles){
+            let surround = options.surround;
+            if(typeof surround === 'undefined') surround = null;
             emitResult.emittedFiles.forEach(file => {
-                let minifyLib = new MinifyJsCommand(false, false, file);
+                let minifyLib = new MinifyJsCommand(false, false, file, surround);
                 minifyLib.execute();
             });
         }

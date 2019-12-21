@@ -14,7 +14,7 @@ export class MinifyCssCommand
 {
     public constructor(
         private document: vscode.TextDocument,
-        private lessDiagnosticCollection: vscode.DiagnosticCollection)
+        private cssDiagnosticCollection: vscode.DiagnosticCollection)
     {
     }
 
@@ -46,40 +46,19 @@ export class MinifyCssCommand
             {
                 compilingMessage.dispose();
                 let elapsedTime: number = (Date.now() - startTime);
-                this.lessDiagnosticCollection.set(this.document.uri, []);
+                this.cssDiagnosticCollection.set(this.document.uri, []);
 
                 StatusBarMessage.show(`$(check) Css minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             }).catch((error: any) =>
             {
                 compilingMessage.dispose();
-                let message: string = error.message;
-                let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
                 let uri:vscode.Uri = this.document.uri;
                 if(error.filename && this.document.fileName != error.filename){
                     uri = vscode.Uri.parse(error.filename);
                 }
 
-                if (error.code)
-                {
-                    // fs errors
-                    let fileSystemError = error;
-                    switch (fileSystemError.code)
-                    {
-                        case 'EACCES':
-                        case 'ENOENT':
-                            message = `Cannot open file '${fileSystemError.path}'`;
-                    }
-                }
-                else if (error.line !== undefined && error.column !== undefined)
-                {
-                    // less errors, try to highlight the affected range
-                    let lineIndex: number = error.line - 1;
-                    range = new vscode.Range(lineIndex, error.column, lineIndex, 0);
-                }
-
-                let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
-                this.lessDiagnosticCollection.set(uri, [diagnosis]);
+                this.cssDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error minify css (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });

@@ -14,8 +14,9 @@ export class MinifyJsCommand
 {
     public constructor(
         private document: any,
-        private lessDiagnosticCollection: any,
-        private file: any = false)
+        private jsDiagnosticCollection: any,
+        private file: any = false,
+        private surround: any = null)
     {
     }
 
@@ -29,7 +30,7 @@ export class MinifyJsCommand
                     "regex": /^_/
                 }
             },
-            "surround": "(function (define){ ${code} })(define)",
+            "surround": this.surround===null?"(function (define){ ${code} })(define)":this.surround,
             "compress": {}
         };
 
@@ -62,40 +63,18 @@ export class MinifyJsCommand
                 let elapsedTime: number = (Date.now() - startTime);
                 compilingMessage.dispose();
                 if(!this.file)
-                    this.lessDiagnosticCollection.set(this.document.uri, []);
+                    this.jsDiagnosticCollection.set(this.document.uri, []);
 
                 StatusBarMessage.show(`$(check) Js minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             }).catch((error: any) =>
             {
                 if(!this.file){
-                    let message: string = error.message;
-                    let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
-
                     let uri:vscode.Uri = this.document.uri;
                     if(error.filename && this.document.fileName != error.filename){
                         uri = vscode.Uri.parse(error.filename);
                     }
 
-                    if (error.code)
-                    {
-                        // fs errors
-                        let fileSystemError = error;
-                        switch (fileSystemError.code)
-                        {
-                            case 'EACCES':
-                            case 'ENOENT':
-                                message = `Cannot open file '${fileSystemError.path}'`;
-                        }
-                    }
-                    else if (error.line !== undefined && error.column !== undefined)
-                    {
-                        // less errors, try to highlight the affected range
-                        let lineIndex: number = error.line - 1;
-                        range = new vscode.Range(lineIndex, error.column, lineIndex, 0);
-                    }
-
-                    let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
-                    this.lessDiagnosticCollection.set(uri, [diagnosis]);
+                    this.jsDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
                 }else{
                     vscode.window.showErrorMessage(error.message);
                 }

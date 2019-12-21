@@ -120,7 +120,8 @@ export function compile(sassFile: string, defaults): Promise<void>
                 let requestedPath = sassPath;
                 if(request.previous != 'stdin')
                     requestedPath = path.resolve(sassPath, path.dirname(request.previous));
-                let paths = sass.getPathVariations(request.current);
+                let paths = getPathVariations(request.current);
+                
                 let x, file;
                 for(x in paths){
                     let realPath = path.resolve(requestedPath, paths[x]);
@@ -245,6 +246,32 @@ function fileExists(path) {
     }
     return false;
 }
+
+function getPathVariations(currentPath) {
+    // [importer,include_path] this is where we would add the ability to
+    // examine the include_path (if we ever use that in Sass.js)
+    currentPath = path.normalize(currentPath);
+    var directory = path.dirname(currentPath);
+    
+    var basename = path.basename(currentPath);
+    var extensions = ['.scss', '.sass', '.css'];
+    // basically what is done by resolve_and_load() in file.cpp
+    // Resolution order for ambiguous imports:
+    var list = [
+      // (1) filename as given
+      currentPath,
+      // (2) underscore + given
+      directory + '\\_' + basename
+    ].concat(extensions.map(function(extension) {
+      // (3) underscore + given + extension
+      return directory + '\\_' + basename + extension;
+    })).concat(extensions.map(function(extension) {
+      // (4) given + extension
+      return directory + '\\' + basename + extension;
+    }));
+  
+    return list;
+  };
 
 
 function cleanBrowsersList(autoprefixOption: string | string[]): string[]

@@ -3,6 +3,8 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as extend from 'extend';
 
+
+
 export function getGlobalOptions(filename: string, key: string = 'compile') {
     let filenamePath: path.ParsedPath = path.parse(filename);
     let defaultOptions = {

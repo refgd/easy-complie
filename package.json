@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.34.0"
@@ -46,10 +46,12 @@
     "configuration": {
       "type": "object",
       "title": "Easy Compile configuration",
+      "scope": "resource",
       "properties": {
         "easycompile.compile": {
           "type": "object",
           "description": "Configuration options for easycompile.",
+          "scope": "resource",
           "properties": {
             "less": {
               "type": "boolean",
@@ -86,6 +88,7 @@
         "easycompile.js": {
           "type": "object",
           "description": "Configuration options for minify Javascript.",
+          "scope": "resource",
           "properties": {
             "surround": {
               "type": "string",
@@ -97,16 +100,19 @@
         "easycompile.css": {
           "type": "object",
           "description": "Configuration options for Css.",
+          "scope": "resource",
           "properties": {}
         },
         "easycompile.typescript": {
           "type": "object",
           "description": "Configuration options for TypeScript.",
+          "scope": "resource",
           "properties": {}
         },
         "easycompile.sass": {
           "type": "object",
           "description": "Configuration options for SASS/SCSS.",
+          "scope": "resource",
           "properties": {
             "compress": {
               "type": "boolean",
@@ -159,6 +165,7 @@
         "easycompile.less": {
           "type": "object",
           "description": "Configuration options for LESS.",
+          "scope": "resource",
           "properties": {
             "compress": {
               "type": "boolean",
