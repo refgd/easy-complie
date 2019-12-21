@@ -146,7 +146,6 @@ export function compile(lessFile: string, defaults): Promise<void>
         // set up the parser
         return less.render(content, options).then(output =>
         {
-                        
             if (output.map && sourceMapFile){
                 const mapFileUrl: string = path.basename(sourceMapFile);
                 output.css += '/*# sourceMappingURL='+mapFileUrl+' */';

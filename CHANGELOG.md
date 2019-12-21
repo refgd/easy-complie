@@ -1,4 +1,8 @@
 # Change Log
+### 1.1.5
+Fix crash bug
+Improve compile error message
+
 ### 1.1.4
 Upgrade dependencies
 Speed up extension

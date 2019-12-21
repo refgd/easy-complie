@@ -55,6 +55,11 @@ export class MinifyCssCommand
                 let message: string = error.message;
                 let range: vscode.Range = new vscode.Range(0, 0, 0, 0);
 
+                let uri:vscode.Uri = this.document.uri;
+                if(error.filename && this.document.fileName != error.filename){
+                    uri = vscode.Uri.parse(error.filename);
+                }
+
                 if (error.code)
                 {
                     // fs errors
@@ -64,20 +69,17 @@ export class MinifyCssCommand
                         case 'EACCES':
                         case 'ENOENT':
                             message = `Cannot open file '${fileSystemError.path}'`;
-                            let firstLine: vscode.TextLine = this.document.lineAt(0);
-                            range = new vscode.Range(0, 0, 0, firstLine.range.end.character);
                     }
                 }
                 else if (error.line !== undefined && error.column !== undefined)
                 {
                     // less errors, try to highlight the affected range
                     let lineIndex: number = error.line - 1;
-                    let affectedLine: vscode.TextLine = this.document.lineAt(lineIndex);
-                    range = new vscode.Range(lineIndex, error.column, lineIndex, affectedLine.range.end.character);
+                    range = new vscode.Range(lineIndex, error.column, lineIndex, 0);
                 }
 
                 let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
-                this.lessDiagnosticCollection.set(this.document.uri, [diagnosis]);
+                this.lessDiagnosticCollection.set(uri, [diagnosis]);
 
                 StatusBarMessage.show("$(alert) Error minify css (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });
