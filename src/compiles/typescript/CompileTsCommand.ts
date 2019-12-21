@@ -26,15 +26,15 @@ export class CompileTsCommand
                 compilingMessage.dispose();
                 if(allDiagnostics !== null){
                     if(allDiagnostics.length>0){
-
-                    }else{
-                        let elapsedTime: number = (Date.now() - startTime);
-    
                         let alld: Array<vscode.Diagnostic> = [];
                         allDiagnostics.forEach(diagnostic => {
                             alld.push(StatusBarMessage.getDiagnostic(diagnostic));
                         });
                         this.tsDiagnosticCollection.set(this.document.uri, alld);
+
+                        StatusBarMessage.show("$(alert) Error compiling typescript (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                    }else{
+                        let elapsedTime: number = (Date.now() - startTime);
     
                         StatusBarMessage.show(`$(check) Typescript compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
                     }
