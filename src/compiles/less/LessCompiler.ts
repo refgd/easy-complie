@@ -18,7 +18,7 @@ export function compile(lessFile: string, defaults): Promise<void>
         const content: string = buffer.toString();
         const options = FileOptionsParser.parse(content, defaults);
         const lessPath: string = path.dirname(lessFile);
-
+        
         // main is set: compile the referenced file instead
         if (options.main)
         {
@@ -109,14 +109,20 @@ export function compile(lessFile: string, defaults): Promise<void>
             }
             options.sourceMap = sourceMapOptions;
         }
-
+        
         // plugins
         options.plugins = [];
         if (options.sass2less !== false)
         {
-            const LessPluginSass2less = require('less-plugin-sass2less');
-            // const sass2lessPlugin = new LessPluginSass2less();
-            options.plugins.push(LessPluginSass2less);
+            const LessPluginSass2less = require('../../plugins/pluginSass2Less');
+            const sass2lessPlugin = new LessPluginSass2less();
+            options.plugins.push(sass2lessPlugin);
+        }
+        if (options.functions !== false)
+        {
+            const LessPluginFunctions = require('less-plugin-functions');
+            const pluginFunctions = new LessPluginFunctions();
+            options.plugins.push(pluginFunctions);
         }
 
         if (options.autoprefixer)
@@ -130,7 +136,7 @@ export function compile(lessFile: string, defaults): Promise<void>
 
         if (options.groupmedia)
         {
-            const LessPluginGroupMedia = require('./lessPluginGroup');
+            const LessPluginGroupMedia = require('../../plugins/pluginGroup');
             const lessGroupPlugin = new LessPluginGroupMedia();
             options.plugins.push(lessGroupPlugin);
         }
@@ -138,7 +144,7 @@ export function compile(lessFile: string, defaults): Promise<void>
         if (options.compress)
         {
             options.compress = false;
-            const LessPluginCleanCSS = require('./lessPluginCleanCss');
+            const LessPluginCleanCSS = require('../../plugins/pluginCleanCss');
             const cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
             options.plugins.push(cleanCSSPlugin);
         }
@@ -146,14 +152,14 @@ export function compile(lessFile: string, defaults): Promise<void>
         // set up the parser
         return less.render(content, options).then(output =>
         {
-            if (output.map && sourceMapFile){
+            if (options.sourceMap && output.map && sourceMapFile){
                 const mapFileUrl: string = path.basename(sourceMapFile);
                 output.css += '/*# sourceMappingURL='+mapFileUrl+' */';
             }
 
             return writeFileContents(cssFile, output.css).then(() =>
             {
-                if (output.map && sourceMapFile)
+                if (options.sourceMap && output.map && sourceMapFile)
                 {
                     return writeFileContents(sourceMapFile, output.map);
                 }

@@ -29,11 +29,49 @@ Easily work with LESS/SASS/SCSS/TYPESCRIPT files in Visual Studio Code.
 
   easycompile.typescript {}
 
-  easycompile.css {}
+  easycompile.css {  
 
-  easycompile.js {}
+  &emsp;`"outDir": { string }`
+  * Redirect output to a different folder  
+  * support ${workspaceRoot}
 
-### Inline Setting (Only work for Complie)
+  &emsp;`"outExt": { string }`
+  * allows you to specify an alternative output file extension
+  * e.g. `.min.css` instead of `.css`
+
+  &emsp;`"autoprefixer": { string }`
+  * this enables the [autoprefixer plugin](https://github.com/postcss/autoprefixer) (included)
+  * e,g. `> 5%; last 2 Chrome versions; not ie 6-9`
+
+  &emsp;`"groupmedia": { boolean }`
+  * This enables the [group media queries plugin](https://github.com/Se7enSky/group-css-media-queries) (included) 
+
+  &emsp;`"sourceMap": { boolean }`
+
+  &emsp;`"sourceMapFileInline": { boolean }`
+  
+  }
+
+  easycompile.js {
+
+  &emsp;`"outDir": { string }`
+  * Redirect output to a different folder  
+  * support ${workspaceRoot}
+
+  &emsp;`"outExt": { string }`
+  * allows you to specify an alternative output file extension
+  * e.g. `.min.js` instead of `.js`
+  
+  &emsp;`"surround": { string }`
+  * put string surround the code
+  * default: `(function (define){ ${code} })(define)`
+
+  &emsp;`"compress": { object }`
+  * implement UglifyJS Compress setting [[compress-options](https://github.com/mishoo/UglifyJS2#compress-options)]
+
+  }
+
+### Inline Setting (Only work for Less/Sass/Scss/Typescript)
   * Settings can also be specified per file as a comment on the _first_ line.
   * Settings are comma-separated and strings are _not_ "quoted".
   * Example:
@@ -85,6 +123,7 @@ Easily work with LESS/SASS/SCSS/TYPESCRIPT files in Visual Studio Code.
 
 `groupmedia: { boolean }` 
  * This enables the [group media queries plugin](https://github.com/Se7enSky/group-css-media-queries) (included).
+
 
  ### Tips
  * Ignore files

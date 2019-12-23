@@ -33,6 +33,7 @@ export class CompileLessCommand
             })
             .catch((error: any) =>
             {
+                console.log(error);
                 compilingMessage.dispose();
 
                 let uri:vscode.Uri = this.document.uri;

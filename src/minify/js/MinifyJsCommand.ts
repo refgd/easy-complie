@@ -24,7 +24,7 @@ export class MinifyJsCommand
     {
         StatusBarMessage.hideError();
 
-        let opts = {
+        let opts:any = {
             "mangle": {
                 "properties":{
                     "regex": /^_/
@@ -57,7 +57,20 @@ export class MinifyJsCommand
                 }
                 let results = minjs.minify(content, uglifyOptions);
                 if(results.error) throw new Error(results.error);
-                return writeFileContents(filename, results.code);
+
+                let outFile = filename;
+                if(!this.file){
+                    const filePath: string = path.dirname(filename);
+                    const outExt = opts.outExt?opts.outExt:'.js';
+                    const baseFilename: string = path.parse(filename).name;
+
+                    let outDir = filePath;
+                    if(opts.outDir){
+                        outDir = resolveFilePath(opts.outDir, filePath, filename);
+                    }
+                    outFile = path.resolve(outDir, baseFilename+outExt);
+                }
+                return writeFileContents(outFile, results.code);
             }).then(() =>
             {
                 let elapsedTime: number = (Date.now() - startTime);
@@ -118,4 +131,24 @@ function readFilePromise(this: void, filename: string): Promise<Buffer>
             }
         });
     });
+}
+
+function intepolatePath(this: void, path: string): string
+{
+    if(vscode.workspace.workspaceFolders){
+        let rootPath = vscode.workspace.workspaceFolders[0];
+        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
+    }
+    return path;
+}
+
+function resolveFilePath(this: void, main: string, tsPath: string, currentTsFile: string): string
+{
+    const interpolatedFilePath: string = intepolatePath(main);
+    const resolvedFilePath: string = path.resolve(tsPath, interpolatedFilePath);
+    if (resolvedFilePath.indexOf(currentTsFile) >= 0)
+    {
+        return ''; // avoid infinite loops
+    }
+    return resolvedFilePath;
 }

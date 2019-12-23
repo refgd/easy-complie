@@ -164,6 +164,7 @@ export function compile(sassFile: string, defaults): Promise<void>
                         reject(result);
                     }else{
                         let css = result.text;
+                        let sourceMap;
                         if(css){
                             if (options.autoprefixer)
                             {
@@ -180,7 +181,7 @@ export function compile(sassFile: string, defaults): Promise<void>
         
                             if (options.groupmedia)
                             {
-                                const SassPluginGroupMedia = require('./sassPluginGroup');
+                                const SassPluginGroupMedia = require('../../plugins/pluginGroup');
                                 const sassGroupPlugin = new SassPluginGroupMedia();
         
                                 sassGroupPlugin.install(result, {
@@ -193,21 +194,35 @@ export function compile(sassFile: string, defaults): Promise<void>
                             if (options.compress)
                             {
                                 options.compress = false;
-                                const LessPluginCleanCSS = require('../less/lessPluginCleanCss');
+                                const LessPluginCleanCSS = require('../../plugins/pluginCleanCss');
                                 const cleanCSSPlugin = new LessPluginCleanCSS({advanced: true});
         
                                 cleanCSSPlugin.install(result, {
                                     addPostProcessor: function (postProcessor){
-                                        css = postProcessor.process(css, {});
+                                        css = postProcessor.process(css, {sourceMap: result.map?{
+                                            getExternalSourceMap: function(){
+                                                return JSON.stringify(result.map)
+                                            },
+                                            setExternalSourceMap: function(map){
+                                                result.map = JSON.parse(map);
+                                            },
+                                        }:false, options: options});
                                     }
                                 });
                             }
-                            if (result.map){
+                            if (options.sourceMap && result.map){
+                                sourceMap = result.map;
+                                let x;
+                                for(x in sourceMap.sources){
+                                    let path = sourceMap.sources[x];
+                                    if(replaceList[path]) sourceMap.sources[x] = replaceList[path];
+                                }
+
                                 if(sourceMapFile){
                                     const mapFileUrl: string = path.basename(sourceMapFile);
                                     css += "\n"+'/*# sourceMappingURL='+mapFileUrl+' */';
                                 }else{
-                                    css += "\n"+'/*# sourceMappingURL=data:application/json;charset=utf-8;base64,'+Buffer.from(JSON.stringify(result.map)).toString("base64")+'  */';
+                                    css += "\n"+'/*# sourceMappingURL=data:application/json;charset=utf-8;base64,'+Buffer.from(JSON.stringify(sourceMap)).toString("base64")+'  */';
                                 }
                             }
                         }else{
@@ -216,16 +231,9 @@ export function compile(sassFile: string, defaults): Promise<void>
                         
                         return writeFileContents(cssFile, css).then(() =>
                         {
-                            if (result.map && sourceMapFile)
-                            {
-
-                                let x;
-                                for(x in result.map.sources){
-                                    let path = result.map.sources[x];
-                                    if(replaceList[path]) result.map.sources[x] = replaceList[path];
-                                }
-                                
-                                return writeFileContents(sourceMapFile, JSON.stringify(result.map)).then(() => {
+                            if (sourceMap && sourceMapFile)
+                            {                                
+                                return writeFileContents(sourceMapFile, JSON.stringify(sourceMap)).then(() => {
                                     resolve(sass);
                                 });
                             }else{

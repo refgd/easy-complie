@@ -6,18 +6,32 @@ const fs = require('fs-plus');
 
 function getEntry() {
   const entry = {};
+  fs.removeSync('out/node_modules');
   const npmListRes = cp.execSync('npm list -only prod -json', {
     encoding: 'utf8'
   });
   const mod = JSON.parse(npmListRes);
-  const unbundledModule = ['impor', 'typescript', 'less', 'sass.js', 'uglify-js', 'less-plugin-sass2less'];
-  for (const mod of unbundledModule) {
-    const p = 'node_modules/' + mod;
-    fs.copySync(p, 'out/node_modules/' + mod);
+  const unbundledModule = {
+    'impor': ['out/index.js'], 
+    'typescript':['lib','loc',], 
+    'less':['index.js', 'dist/less.cjs.js'], 
+    'uglify-js':['tools', 'lib']
+  };
+  for (const mod in unbundledModule) {
+    unbundledModule[mod].push('package.json');
+    for (const sub of unbundledModule[mod]) {
+      const p = mod + '/' + sub;
+      if(fs.isDirectorySync('node_modules/' + p)){
+        fs.copySync('node_modules/' + p, 'out/node_modules/' + p)
+      }else{
+        fs.copyFileSync('node_modules/' + p, 'out/node_modules/' + p)
+      }
+    }
   }
+  
   const list = getDependeciesFromNpm(mod);
   const moduleList = list.filter((value, index, self) => {
-    return self.indexOf(value) === index && unbundledModule.indexOf(value) === -1 && !/^@types\//.test(value);
+    return self.indexOf(value) === index && !unbundledModule[value] && !/^@types\//.test(value);
   });
 
   for (const mod of moduleList) {

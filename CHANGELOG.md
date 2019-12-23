@@ -1,4 +1,9 @@
 # Change Log  
+### 1.1.7
+Fix sourceMap option ([#25])  
+Implement Minify Css/JS settings ([#20] [#26])  
+Optimize code  
+
 ### 1.1.6
 Fix new version sass/scss import ([#24])  
 Add channel message output  
