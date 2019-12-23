@@ -34,3 +34,56 @@ export function getRootFileInfo(parsedPath: path.ParsedPath) {
 export function getNodeMPath() {
     return path.resolve(__dirname+'/../../node_modules/');
 }
+
+export function formatPath(path: string){
+    //fix path on windows
+    return path.replace(/^\/([a-zA-Z]+:\/)/g, "$1");
+}
+
+export function intepolatePath(this: void, path: string): string
+{
+    if(vscode.workspace.workspaceFolders){
+        let rootPath = vscode.workspace.workspaceFolders[0];
+        path = formatPath((<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path));
+    }
+    return path;
+}
+
+export function resolveFilePath(this: void, main: string, tsPath: string, currentTsFile: string): string
+{
+    const interpolatedFilePath: string = intepolatePath(main);
+    const resolvedFilePath: string = path.resolve(tsPath, interpolatedFilePath);
+    if (resolvedFilePath.indexOf(currentTsFile) >= 0)
+    {
+        return ''; // avoid infinite loops
+    }
+    return resolvedFilePath;
+}
+
+
+
+export function resolveMainFilePaths(this: void, main: string | string[], lessPath: string, currentLessFile: string): string[]
+{
+    let mainFiles: string[];
+    if (typeof main === "string")
+    {
+        mainFiles = [main];
+    }
+    else if (Array.isArray(main))
+    {
+        mainFiles = main;
+    }
+    else
+    {
+        mainFiles = [];
+    }
+
+    const interpolatedMainFilePaths: string[] = mainFiles.map(mainFile => intepolatePath(mainFile));
+    const resolvedMainFilePaths: string[] = interpolatedMainFilePaths.map(mainFile => path.resolve(lessPath, mainFile));
+    if (resolvedMainFilePaths.indexOf(currentLessFile) >= 0)
+    {
+        return []; // avoid infinite loops
+    }
+
+    return resolvedMainFilePaths;
+}

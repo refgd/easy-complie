@@ -13,7 +13,7 @@ const CleanCSS = require("clean-css");
 export class MinifyCssCommand
 {
     public constructor(
-        private document: vscode.TextDocument,
+        private filePath: string,
         private cssDiagnosticCollection: vscode.DiagnosticCollection)
     {
     }
@@ -29,22 +29,22 @@ export class MinifyCssCommand
             sourceMap: false,
             sourceMapFileInline: false
         }
-        const cssFile = this.document.fileName;
+        const cssFile = this.filePath;
         const cssPath: string = path.dirname(cssFile);
 
-        let globalOptions = Configuration.getGlobalOptions(this.document.fileName, 'css');
+        let globalOptions = Configuration.getGlobalOptions(cssFile, 'css');
         let compilingMessage = StatusBarMessage.show("$(zap) Minifing css", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
         opts = extend({}, opts, globalOptions);
 
-        readFilePromise(this.document.fileName).then(buffer =>
+        readFilePromise(cssFile).then(buffer =>
             {
                 const outExt = opts.outExt?opts.outExt:'.css';
                 const baseFilename: string = path.parse(cssFile).name;
 
                 let outDir = cssPath;
                 if(opts.outDir){
-                    outDir = resolveFilePath(opts.outDir, cssPath, cssFile);
+                    outDir = Configuration.resolveFilePath(opts.outDir, cssPath, cssFile);
                 }
                 const outFile = path.resolve(outDir, baseFilename+outExt);
 
@@ -92,16 +92,18 @@ export class MinifyCssCommand
             {
                 compilingMessage.dispose();
                 let elapsedTime: number = (Date.now() - startTime);
-                this.cssDiagnosticCollection.set(this.document.uri, []);
+                this.cssDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
 
                 StatusBarMessage.show(`$(check) Css minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             }).catch((error: any) =>
             {
                 compilingMessage.dispose();
 
-                let uri:vscode.Uri = this.document.uri;
-                if(error.filename && this.document.fileName != error.filename){
+                let uri:vscode.Uri;
+                if(error.filename && this.filePath != error.filename){
                     uri = vscode.Uri.parse(error.filename);
+                }else{
+                    uri = vscode.Uri.parse(this.filePath);
                 }
 
                 this.cssDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
@@ -144,24 +146,4 @@ function readFilePromise(this: void, filename: string): Promise<Buffer>
             }
         });
     });
-}
-
-function intepolatePath(this: void, path: string): string
-{
-    if(vscode.workspace.workspaceFolders){
-        let rootPath = vscode.workspace.workspaceFolders[0];
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
-    }
-    return path;
-}
-
-function resolveFilePath(this: void, main: string, tsPath: string, currentTsFile: string): string
-{
-    const interpolatedFilePath: string = intepolatePath(main);
-    const resolvedFilePath: string = path.resolve(tsPath, interpolatedFilePath);
-    if (resolvedFilePath.indexOf(currentTsFile) >= 0)
-    {
-        return ''; // avoid infinite loops
-    }
-    return resolvedFilePath;
 }

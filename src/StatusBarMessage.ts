@@ -75,6 +75,8 @@ export function getDiagnostic(error):vscode.Diagnostic
         let lineIndex: number = error.line - 1;
         range = new vscode.Range(lineIndex, error.column, lineIndex, 0);
         message = error.message;
+    }else{
+        console.log(error);
     }
 
     let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);

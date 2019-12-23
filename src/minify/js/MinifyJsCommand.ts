@@ -13,11 +13,11 @@ const minjs = require('uglify-js');
 export class MinifyJsCommand
 {
     public constructor(
-        private document: any,
-        private jsDiagnosticCollection: any,
-        private file: any = false,
-        private surround: any = null)
-    {
+        private oriFile: string | undefined,
+        private jsDiagnosticCollection: vscode.DiagnosticCollection | undefined,
+        private file: string | undefined,
+        private surround: string | undefined
+    ){
     }
 
     public execute()
@@ -30,13 +30,13 @@ export class MinifyJsCommand
                     "regex": /^_/
                 }
             },
-            "surround": this.surround===null?"(function (define){ ${code} })(define)":this.surround,
+            "surround": (typeof this.surround == "undefined")?"(function (define){ ${code} })(define)":this.surround,
             "compress": {}
         };
 
         let filename;
         if(this.file) filename = this.file;
-        else filename = this.document.fileName;
+        else filename = this.oriFile;
 
         let globalOptions = Configuration.getGlobalOptions(filename, 'js');
         let compilingMessage = StatusBarMessage.show("$(zap) Minifing js", StatusBarMessageTypes.INDEFINITE);
@@ -66,7 +66,7 @@ export class MinifyJsCommand
 
                     let outDir = filePath;
                     if(opts.outDir){
-                        outDir = resolveFilePath(opts.outDir, filePath, filename);
+                        outDir = Configuration.resolveFilePath(opts.outDir, filePath, filename);
                     }
                     outFile = path.resolve(outDir, baseFilename+outExt);
                 }
@@ -75,16 +75,18 @@ export class MinifyJsCommand
             {
                 let elapsedTime: number = (Date.now() - startTime);
                 compilingMessage.dispose();
-                if(!this.file)
-                    this.jsDiagnosticCollection.set(this.document.uri, []);
+                if(this.jsDiagnosticCollection)
+                    this.jsDiagnosticCollection.set(vscode.Uri.parse(filename), []);
 
                 StatusBarMessage.show(`$(check) Js minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             }).catch((error: any) =>
             {
-                if(!this.file){
-                    let uri:vscode.Uri = this.document.uri;
-                    if(error.filename && this.document.fileName != error.filename){
+                if(this.jsDiagnosticCollection){
+                    let uri:vscode.Uri;
+                    if(error.filename && filename != error.filename){
                         uri = vscode.Uri.parse(error.filename);
+                    }else{
+                        uri = vscode.Uri.parse(filename);
                     }
 
                     this.jsDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
@@ -131,24 +133,4 @@ function readFilePromise(this: void, filename: string): Promise<Buffer>
             }
         });
     });
-}
-
-function intepolatePath(this: void, path: string): string
-{
-    if(vscode.workspace.workspaceFolders){
-        let rootPath = vscode.workspace.workspaceFolders[0];
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
-    }
-    return path;
-}
-
-function resolveFilePath(this: void, main: string, tsPath: string, currentTsFile: string): string
-{
-    const interpolatedFilePath: string = intepolatePath(main);
-    const resolvedFilePath: string = path.resolve(tsPath, interpolatedFilePath);
-    if (resolvedFilePath.indexOf(currentTsFile) >= 0)
-    {
-        return ''; // avoid infinite loops
-    }
-    return resolvedFilePath;
 }

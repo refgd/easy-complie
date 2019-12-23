@@ -7,11 +7,13 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceFolder}" ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [ "${workspaceFolder}/dist/**/*.js" ],
-            "preLaunchTask": "npm: compile"
+            "args": [
+                "${workspaceFolder}/tests/",
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "outFiles": [ "${workspaceRoot}/out/src/**/*.js" ],
+            "preLaunchTask": "${defaultBuildTask}"
         },
         {
             "name": "Extension Tests",
@@ -19,13 +21,13 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
+                "${workspaceFolder}/tests/",
+                "--disable-extensions",
                 "--extensionDevelopmentPath=${workspaceFolder}", 
-                "--extensionTestsPath=${workspaceFolder}/out/test" 
+                "--extensionTestsPath=${workspaceFolder}/out/src/test/suite/index" 
             ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [ "${workspaceFolder}/out/test/**/*.js" ],
-            "preLaunchTask": "npm: test"
+            "outFiles": [ "${workspaceFolder}/out/src/test/**/*.js" ],
+            "preLaunchTask": "${defaultBuildTask}"
         }
     ]
 }

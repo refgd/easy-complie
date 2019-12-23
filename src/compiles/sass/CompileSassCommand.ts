@@ -11,7 +11,7 @@ import * as SassCompiler from "./SassCompiler";
 export class CompileSassCommand
 {
     public constructor(
-        private document: vscode.TextDocument,
+        private filePath: string,
         private sassDiagnosticCollection: vscode.DiagnosticCollection)
     {
     }
@@ -19,16 +19,16 @@ export class CompileSassCommand
     public execute()
     {
         StatusBarMessage.hideError();
-        let globalOptions = Configuration.getGlobalOptions(this.document.fileName, 'sass');
+        let globalOptions = Configuration.getGlobalOptions(this.filePath, 'sass');
         let compilingMessage = StatusBarMessage.show("$(zap) Compiling sass --> css", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
-        let renderPromise = SassCompiler.compile(this.document.fileName, globalOptions)
+        let renderPromise = SassCompiler.compile(this.filePath, globalOptions)
             .then((sass: any) =>
             {
                 compilingMessage.dispose();
                 if(sass) sass.clearFiles();
                 let elapsedTime: number = (Date.now() - startTime);
-                this.sassDiagnosticCollection.set(this.document.uri, []);
+                this.sassDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
 
                 StatusBarMessage.show(`$(check) Sass compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             })
@@ -37,9 +37,11 @@ export class CompileSassCommand
                 compilingMessage.dispose();
                 if(error.sass) error.sass.clearFiles();
 
-                let uri:vscode.Uri = this.document.uri;
-                if(error.filename && this.document.fileName != error.filename){
+                let uri:vscode.Uri;
+                if(error.filename && this.filePath != error.filename){
                     uri = vscode.Uri.parse(error.filename);
+                }else{
+                    uri = vscode.Uri.parse(this.filePath);
                 }
 
                 this.sassDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);

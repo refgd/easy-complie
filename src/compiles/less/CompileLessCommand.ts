@@ -10,7 +10,7 @@ import * as LessCompiler from "./LessCompiler";
 export class CompileLessCommand
 {
     public constructor(
-        private document: vscode.TextDocument,
+        private filePath: string,
         private lessDiagnosticCollection: vscode.DiagnosticCollection)
     {
     }
@@ -19,26 +19,27 @@ export class CompileLessCommand
     {
         StatusBarMessage.hideError();
 
-        let globalOptions = Configuration.getGlobalOptions(this.document.fileName, 'less');
+        let globalOptions = Configuration.getGlobalOptions(this.filePath, 'less');
         let compilingMessage = StatusBarMessage.show("$(zap) Compiling less --> css", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
-        let renderPromise = LessCompiler.compile(this.document.fileName, globalOptions)
+        let renderPromise = LessCompiler.compile(this.filePath, globalOptions)
             .then(() =>
             {
                 compilingMessage.dispose();
                 let elapsedTime: number = (Date.now() - startTime);
-                this.lessDiagnosticCollection.set(this.document.uri, []);
+                this.lessDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
 
                 StatusBarMessage.show(`$(check) Less compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
             })
             .catch((error: any) =>
             {
-                console.log(error);
                 compilingMessage.dispose();
 
-                let uri:vscode.Uri = this.document.uri;
-                if(error.filename && this.document.fileName != error.filename){
+                let uri:vscode.Uri;
+                if(error.filename && this.filePath != error.filename){
                     uri = vscode.Uri.parse(error.filename);
+                }else{
+                    uri = vscode.Uri.parse(this.filePath);
                 }
 
                 this.lessDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);

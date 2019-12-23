@@ -1,8 +1,7 @@
 out
-test
 node_modules
+.vscode-test/
 *.vsix
-*.zip
 package-lock.json
 **/.DS_Store
-dist
+tests/output/**

@@ -3,7 +3,6 @@ import * as mkpath from 'mkpath'
 import * as path from 'path'
 import * as extend from 'extend'
 import * as fs from 'fs'
-import * as vscode from 'vscode';
 
 import * as Configuration from "../../Configuration";
 import * as FileOptionsParser from "../../FileOptionsParser";
@@ -22,10 +21,10 @@ export function compile(lessFile: string, defaults): Promise<void>
         // main is set: compile the referenced file instead
         if (options.main)
         {
-            const mainFilePaths: string[] = resolveMainFilePaths(options.main, lessPath, lessFile);
+            const mainFilePaths: string[] = Configuration.resolveMainFilePaths(options.main, lessPath, lessFile);
             if(!options.exclude) options.exclude = [];
             if(options.excludes) options.exclude = extend([], options.exclude, options.excludes);
-            const excludePaths: string[] = resolveMainFilePaths(options.exclude, lessPath, lessFile);
+            const excludePaths: string[] = Configuration.resolveMainFilePaths(options.exclude, lessPath, lessFile);
             let lastPromise: Promise<void> | null = null;
             if (mainFilePaths && mainFilePaths.length > 0)
             {
@@ -63,7 +62,7 @@ export function compile(lessFile: string, defaults): Promise<void>
         {
             // out is set: output to the given file name
             // check whether is a folder first
-            let interpolatedOut = intepolatePath(out);
+            let interpolatedOut = Configuration.intepolatePath(out);
 
             cssRelativeFilename = interpolatedOut;
             let lastCharacter = cssRelativeFilename.slice(-1);
@@ -181,41 +180,6 @@ function cleanBrowsersList(autoprefixOption: string | string[]): string[]
     }
 
     return browsers.map(browser => browser.trim());
-}
-
-function intepolatePath(this: void, path: string): string
-{
-    if(vscode.workspace.workspaceFolders){
-        let rootPath = vscode.workspace.workspaceFolders[0];
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
-    }
-    return path;
-}
-
-function resolveMainFilePaths(this: void, main: string | string[], lessPath: string, currentLessFile: string): string[]
-{
-    let mainFiles: string[];
-    if (typeof main === "string")
-    {
-        mainFiles = [main];
-    }
-    else if (Array.isArray(main))
-    {
-        mainFiles = main;
-    }
-    else
-    {
-        mainFiles = [];
-    }
-
-    const interpolatedMainFilePaths: string[] = mainFiles.map(mainFile => intepolatePath(mainFile));
-    const resolvedMainFilePaths: string[] = interpolatedMainFilePaths.map(mainFile => path.resolve(lessPath, mainFile));
-    if (resolvedMainFilePaths.indexOf(currentLessFile) >= 0)
-    {
-        return []; // avoid infinite loops
-    }
-
-    return resolvedMainFilePaths;
 }
 
 // writes a file's contents in a path where directories may or may not yet exist

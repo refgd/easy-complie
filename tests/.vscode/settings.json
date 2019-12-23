@@ -1,0 +1,11 @@
+{
+    "easycompile.css": {
+        "outDir": "${workspaceRoot}/output/css",
+        "outExt": ".min.css",
+        "sourceMap": true
+    },
+    "easycompile.js": {
+        "outDir": "${workspaceRoot}/output/js",
+        "outExt": ".min.js"
+    }
+}

@@ -23,10 +23,10 @@ export function compile(tsFile: string, defaults): Promise<any>
         // main is set: compile the referenced file instead
         if (options.main)
         {
-            const mainFilePaths: string[] = resolveMainFilePaths(options.main, tsPath, tsFile);
+            const mainFilePaths: string[] = Configuration.resolveMainFilePaths(options.main, tsPath, tsFile);
             if(!options.exclude) options.exclude = [];
             if(options.excludes) options.exclude = extend([], options.exclude, options.excludes);
-            const excludePaths: string[] = resolveMainFilePaths(options.exclude, tsPath, tsFile);
+            const excludePaths: string[] = Configuration.resolveMainFilePaths(options.exclude, tsPath, tsFile);
             let lastPromise: Promise<any> | null = null;
             if (mainFilePaths && mainFilePaths.length > 0)
             {
@@ -59,7 +59,7 @@ export function compile(tsFile: string, defaults): Promise<any>
         const outdir: string | undefined = options.outdir;
         
         const baseFilename: string = path.parse(tsFile).name;
-        const pathToTypes = path.resolve(intepolatePath('${workspaceRoot}/node_modules/@types'));
+        const pathToTypes = path.resolve(Configuration.intepolatePath('${workspaceRoot}/node_modules/@types'));
         let tsOptions:any = {
             noEmitOnError: true, noImplicitAny: false, sourceMap: false,
             allowJs: true, removeComments: true, listEmittedFiles: true,
@@ -69,11 +69,11 @@ export function compile(tsFile: string, defaults): Promise<any>
         tsOptions = extend({}, tsOptions, options);
         if (typeof outfile === "string") 
         {
-            tsOptions = extend({}, tsOptions, {outFile: resolveFilePath(outfile, tsPath, tsFile)});
+            tsOptions = extend({}, tsOptions, {outFile: Configuration.resolveFilePath(outfile, tsPath, tsFile)});
         }
         else if (typeof outdir === "string")
         {
-            tsOptions = extend({}, tsOptions, {outDir: resolveFilePath(outdir, tsPath, tsFile)});
+            tsOptions = extend({}, tsOptions, {outDir: Configuration.resolveFilePath(outdir, tsPath, tsFile)});
         }
         
         if(isArray(tsOptions.lib)){
@@ -103,11 +103,10 @@ export function compile(tsFile: string, defaults): Promise<any>
             }
         });
         
-        if( (alld === null || alld.length==0) && options.compress && emitResult.emittedFiles){
+        if( alld.length==0 && options.compress && emitResult.emittedFiles){
             let surround = options.surround;
-            if(typeof surround === 'undefined') surround = null;
             emitResult.emittedFiles.forEach(file => {
-                let minifyLib = new MinifyJsCommand(false, false, file, surround);
+                let minifyLib = new MinifyJsCommand(undefined, undefined, file, surround);
                 minifyLib.execute();
             });
         }
@@ -122,52 +121,6 @@ function returnPromise(obj:any): Promise<any>
     {
         resolve(obj);
     });
-}
-
-function intepolatePath(this: void, path: string): string
-{
-    if(vscode.workspace.workspaceFolders){
-        let rootPath = vscode.workspace.workspaceFolders[0];
-        return (<string>path).replace(/\$\{workspaceRoot\}/g, rootPath.uri.path);
-    }
-    return path;
-}
-
-function resolveFilePath(this: void, main: string, tsPath: string, currentTsFile: string): string
-{
-    const interpolatedFilePath: string = intepolatePath(main);
-    const resolvedFilePath: string = path.resolve(tsPath, interpolatedFilePath);
-    if (resolvedFilePath.indexOf(currentTsFile) >= 0)
-    {
-        return ''; // avoid infinite loops
-    }
-    return resolvedFilePath;
-}
-
-function resolveMainFilePaths(this: void, main: string | string[], tsPath: string, currentTsFile: string): string[]
-{
-    let mainFiles: string[];
-    if (typeof main === "string")
-    {
-        mainFiles = [main];
-    }
-    else if (Array.isArray(main))
-    {
-        mainFiles = main;
-    }
-    else
-    {
-        mainFiles = [];
-    }
-
-    const interpolatedMainFilePaths: string[] = mainFiles.map(mainFile => intepolatePath(mainFile));
-    const resolvedMainFilePaths: string[] = interpolatedMainFilePaths.map(mainFile => path.resolve(tsPath, mainFile));
-    if (resolvedMainFilePaths.indexOf(currentTsFile) >= 0)
-    {
-        return []; // avoid infinite loops
-    }
-
-    return resolvedMainFilePaths;
 }
 
 function readFilePromise(this: void, filename: string): Promise<Buffer> 

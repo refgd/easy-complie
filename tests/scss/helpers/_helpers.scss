@@ -1,0 +1,7 @@
+//main: ../test.scss
+@import './mixins';
+@import './sub/variables.scss';
+
+.helper {
+  color: #001;
+}
