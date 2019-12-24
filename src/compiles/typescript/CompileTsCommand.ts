@@ -5,6 +5,9 @@ import * as StatusBarMessage from "../../StatusBarMessage";
 import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 import * as TsCompiler from "./TsCompiler";
 
+const defaultOpts = {
+    'surround': '(function (define){ ${code} })(define)'
+};
 export class CompileTsCommand
 {
     public constructor(
@@ -17,7 +20,7 @@ export class CompileTsCommand
     {
         StatusBarMessage.hideError();
         
-        let globalOptions = Configuration.getGlobalOptions(this.filePath, 'typescript');
+        let globalOptions = Configuration.getGlobalOptions(this.filePath, 'typescript', defaultOpts);
         let compilingMessage = StatusBarMessage.show("$(zap) Compiling ts --> js", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
         let renderPromise = TsCompiler.compile(this.filePath, globalOptions)

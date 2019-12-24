@@ -9,7 +9,15 @@ import * as StatusBarMessage from "../../StatusBarMessage";
 import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 
 const minjs = require('uglify-js');
-
+const defaultOpts = {
+    "mangle": {
+        "properties":{
+            "regex": /^_/
+        }
+    },
+    "surround": "",
+    "compress": {}
+}
 export class MinifyJsCommand
 {
     public constructor(
@@ -24,24 +32,18 @@ export class MinifyJsCommand
     {
         StatusBarMessage.hideError();
 
-        let opts:any = {
-            "mangle": {
-                "properties":{
-                    "regex": /^_/
-                }
-            },
-            "surround": (typeof this.surround == "undefined")?"(function (define){ ${code} })(define)":this.surround,
-            "compress": {}
-        };
-
         let filename;
         if(this.file) filename = this.file;
         else filename = this.oriFile;
 
-        let globalOptions = Configuration.getGlobalOptions(filename, 'js');
+        let opts = Configuration.getGlobalOptions(filename, 'js', defaultOpts);
         let compilingMessage = StatusBarMessage.show("$(zap) Minifing js", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
-        opts = extend({}, opts, globalOptions);
+
+        if(this.surround){
+            opts.surround = this.surround;
+        }
+        
         readFilePromise(filename).then(buffer =>
             {
                 let content: string = buffer.toString();

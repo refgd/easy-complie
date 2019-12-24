@@ -43,7 +43,7 @@ suite('Extension Test Suite', () => {
 		await sleep(2000);
 		checkDiagnostics('.js');
 		assert.equal(fs.existsSync(basePath+'/output/js/test.min.js'), true, 'Minify JS file not exists');
-		assert.equal(fs.md5ForPath(basePath+'/output/js/test.min.js'), '340876f1b2ee035037bbbefe9f692d69', 'Minify JS file incorrect');
+		assert.equal(fs.md5ForPath(basePath+'/output/js/test.min.js'), '59a9c639b7f0a44381f8c94c3558558d', 'Minify JS file incorrect');
 		
 	}).timeout(5000);
 

@@ -64,7 +64,7 @@ Easily work with LESS/SASS/SCSS/TYPESCRIPT files in Visual Studio Code.
   
   &emsp;`"surround": { string }`
   * put string surround the code
-  * default: `(function (define){ ${code} })(define)`
+  * e.g. `(function (){ ${code} })()`
 
   &emsp;`"compress": { object }`
   * implement UglifyJS Compress setting [[compress-options](https://github.com/mishoo/UglifyJS2#compress-options)]

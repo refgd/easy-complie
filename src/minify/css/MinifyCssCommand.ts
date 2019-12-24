@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as extend from 'extend';
 import * as mkpath from 'mkpath';
 
 import * as Configuration from "../../Configuration";
@@ -9,6 +8,15 @@ import * as StatusBarMessage from "../../StatusBarMessage";
 import {StatusBarMessageTypes} from "../../StatusBarMessageTypes";
 
 const CleanCSS = require("clean-css");
+
+const defaultOpts = {
+    processImport: false,
+    rebase: false,
+    advanced: true,
+    groupmedia: false,
+    sourceMap: false,
+    sourceMapFileInline: false
+}
 
 export class MinifyCssCommand
 {
@@ -21,21 +29,12 @@ export class MinifyCssCommand
     public execute()
     {
         StatusBarMessage.hideError();
-        let opts:any = {
-            processImport: false,
-            rebase: false,
-            advanced: true,
-            groupmedia: false,
-            sourceMap: false,
-            sourceMapFileInline: false
-        }
         const cssFile = this.filePath;
         const cssPath: string = path.dirname(cssFile);
 
-        let globalOptions = Configuration.getGlobalOptions(cssFile, 'css');
+        let opts = Configuration.getGlobalOptions(cssFile, 'css', defaultOpts);
         let compilingMessage = StatusBarMessage.show("$(zap) Minifing css", StatusBarMessageTypes.INDEFINITE);
         let startTime: number = Date.now();
-        opts = extend({}, opts, globalOptions);
 
         readFilePromise(cssFile).then(buffer =>
             {

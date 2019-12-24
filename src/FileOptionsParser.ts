@@ -26,7 +26,7 @@ export function parse(line: string, defaults)
         let key: string = item.substr(0, i).trim();
 
         let value: string = item.substr(i + 1).trim();
-        if (value.match(/^(true|false|undefined|null|[0-9]+)$/))
+        if (value.match(/^(""|''|true|false|undefined|null|[0-9]+)$/))
         {
             value = eval(value);
         }

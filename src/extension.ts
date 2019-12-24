@@ -165,8 +165,13 @@ export function activate(context: vscode.ExtensionContext) {
     // dismiss less/sass/scss errors on file close
     let didCloseEvent = vscode.workspace.onDidCloseTextDocument((document: vscode.TextDocument) =>
     {
-        if (document.fileName.endsWith(LESS_EXT) || document.fileName.endsWith(SASS_EXT) || document.fileName.endsWith(SCSS_EXT))
-        {
+        if (document.fileName.endsWith(TS_EXT)
+            || document.fileName.endsWith(CSS_EXT)
+            || document.fileName.endsWith(JS_EXT)
+            || document.fileName.endsWith(LESS_EXT)
+            || document.fileName.endsWith(SASS_EXT)
+            || document.fileName.endsWith(SCSS_EXT)
+        ){
             DiagnosticCollection.delete(document.uri);
         }
     })

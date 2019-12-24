@@ -5,7 +5,7 @@ import * as extend from 'extend';
 
 
 
-export function getGlobalOptions(filename: string, key: string = 'compile') {
+export function getGlobalOptions(filename: string, key: string = 'compile', projectDefault: object = {}) {
     let filenamePath: path.ParsedPath = path.parse(filename);
     let defaultOptions = {
         plugins: [],
@@ -14,7 +14,7 @@ export function getGlobalOptions(filename: string, key: string = 'compile') {
     };
 
     let configuredOptions = vscode.workspace.getConfiguration("easycompile").get(key);
-    return extend({}, defaultOptions, configuredOptions);
+    return extend({}, projectDefault, defaultOptions, configuredOptions);
 }
 
 export function getRootFileInfo(parsedPath: path.ParsedPath) {

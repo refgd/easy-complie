@@ -1,5 +1,9 @@
 # Change Log  
-### 1.1.7
+### 1.1.9
+Change minify js "surround" default value ([#27])  
+Fix typescript error message  
+
+### 1.1.8
 Fix sourceMap option ([#25])  
 Implement Minify Css/JS settings ([#20] [#26])  
 Optimize code  

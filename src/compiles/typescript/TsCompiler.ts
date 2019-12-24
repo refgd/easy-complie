@@ -91,9 +91,10 @@ export function compile(tsFile: string, defaults): Promise<any>
             if(diagnostic.file){
                 let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!);
                 alld.push({
-                    lineIndex: line,
+                    line: line,
                     column: character,
-                    message: message
+                    message: message,
+                    filename: diagnostic.file.fileName
                 });
             }else{
                 alld.push({
