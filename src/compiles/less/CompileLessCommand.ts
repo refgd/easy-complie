@@ -35,14 +35,14 @@ export class CompileLessCommand
             {
                 compilingMessage.dispose();
 
-                let uri:vscode.Uri;
+                let file:string;
                 if(error.filename && this.filePath != error.filename){
-                    uri = vscode.Uri.parse(error.filename);
+                    file = error.filename;
                 }else{
-                    uri = vscode.Uri.parse(this.filePath);
+                    file = this.filePath;
                 }
 
-                this.lessDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
+                StatusBarMessage.formatDiagnostic(this.lessDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling less (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });

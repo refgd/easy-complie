@@ -22,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     DiagnosticCollection = vscode.languages.createDiagnosticCollection();
     let runCommand = function (type: string, filePath: string){
         filePath = Configuration.formatPath(filePath);
+        DiagnosticCollection.clear();
         let organise;
         if(type == LESS_EXT){
             const LessCompiler = impor("./compiles/less/CompileLessCommand") as typeof import('./compiles/less/CompileLessCommand');
@@ -172,7 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
             || document.fileName.endsWith(SASS_EXT)
             || document.fileName.endsWith(SCSS_EXT)
         ){
-            DiagnosticCollection.delete(document.uri);
+            DiagnosticCollection.delete(vscode.Uri.parse(document.fileName));
         }
     })
 

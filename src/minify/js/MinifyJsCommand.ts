@@ -84,14 +84,16 @@ export class MinifyJsCommand
             }).catch((error: any) =>
             {
                 if(this.jsDiagnosticCollection){
-                    let uri:vscode.Uri;
+
+                    let file:string;
                     if(error.filename && filename != error.filename){
-                        uri = vscode.Uri.parse(error.filename);
+                        file = error.filename;
                     }else{
-                        uri = vscode.Uri.parse(filename);
+                        file = filename;
                     }
 
-                    this.jsDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
+                    StatusBarMessage.formatDiagnostic(this.jsDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
+                    
                 }else{
                     vscode.window.showErrorMessage(error.message);
                 }

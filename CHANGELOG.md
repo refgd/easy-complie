@@ -1,4 +1,8 @@
 # Change Log  
+### 1.2.0
+Fix folder settings have no effect
+Optimize diagnostic message
+
 ### 1.1.9
 Change minify js "surround" default value ([#27])  
 Fix typescript error message  

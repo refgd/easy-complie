@@ -13,7 +13,7 @@ export function getGlobalOptions(filename: string, key: string = 'compile', proj
         relativeUrls: false
     };
 
-    let configuredOptions = vscode.workspace.getConfiguration("easycompile").get(key);
+    let configuredOptions = vscode.workspace.getConfiguration("easycompile", vscode.Uri.parse(filename)).get(key);
     return extend({}, projectDefault, defaultOptions, configuredOptions);
 }
 

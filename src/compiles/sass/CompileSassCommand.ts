@@ -37,14 +37,14 @@ export class CompileSassCommand
                 compilingMessage.dispose();
                 if(error.sass) error.sass.clearFiles();
 
-                let uri:vscode.Uri;
+                let file:string;
                 if(error.filename && this.filePath != error.filename){
-                    uri = vscode.Uri.parse(error.filename);
+                    file = error.filename;
                 }else{
-                    uri = vscode.Uri.parse(this.filePath);
+                    file = this.filePath;
                 }
 
-                this.sassDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
+                StatusBarMessage.formatDiagnostic(this.sassDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling sass (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 import * as Configuration from "../../Configuration";
 import * as StatusBarMessage from "../../StatusBarMessage";
@@ -29,16 +30,23 @@ export class CompileTsCommand
                 compilingMessage.dispose();
                 if(allDiagnostics !== null){
                     if(allDiagnostics.length>0){
-                        let alld: Array<vscode.Diagnostic> = [];
+                        let files = {};
                         allDiagnostics.forEach(diagnostic => {
-                            alld.push(StatusBarMessage.getDiagnostic(diagnostic));
+                            let file = diagnostic.filename?diagnostic.filename:this.filePath;
+                            if(!files[file]) files[file] = [];
+                            files[file].push(StatusBarMessage.getDiagnostic(diagnostic));
                         });
-                        this.tsDiagnosticCollection.set(vscode.Uri.parse(this.filePath), alld);
+
+                        for (const key in files) {
+                            const alld = files[key];
+                            StatusBarMessage.formatDiagnostic(this.tsDiagnosticCollection, key, alld);
+                        }
 
                         StatusBarMessage.show("$(alert) Error compiling typescript (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
                     }else{
                         let elapsedTime: number = (Date.now() - startTime);
-    
+                        this.tsDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
+
                         StatusBarMessage.show(`$(check) Typescript compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
                     }
                 }
@@ -50,14 +58,14 @@ export class CompileTsCommand
             {
                 compilingMessage.dispose();
 
-                let uri:vscode.Uri;
+                let file:string;
                 if(error.filename && this.filePath != error.filename){
-                    uri = vscode.Uri.parse(error.filename);
+                    file = error.filename;
                 }else{
-                    uri = vscode.Uri.parse(this.filePath);
+                    file = this.filePath;
                 }
 
-                this.tsDiagnosticCollection.set(uri, [StatusBarMessage.getDiagnostic(error)]);
+                StatusBarMessage.formatDiagnostic(this.tsDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling typescript (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
             });

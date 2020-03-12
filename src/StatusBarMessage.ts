@@ -73,6 +73,7 @@ export function getDiagnostic(error):vscode.Diagnostic
     {
         // typescript errors, try to highlight the affected range
         let lineIndex: number = error.line - 1;
+        if(lineIndex<0) lineIndex = 0;
         range = new vscode.Range(lineIndex, error.column, lineIndex, 0);
         message = error.message;
     }else{
@@ -82,4 +83,10 @@ export function getDiagnostic(error):vscode.Diagnostic
     let diagnosis = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
 
     return diagnosis;
+}
+
+export function formatDiagnostic(diagnostic, file, alld)
+{
+    file = file.replace(/^([a-zA-Z]+:\/)/g, "/$1");
+    diagnostic.set(vscode.Uri.parse(file), alld);
 }
