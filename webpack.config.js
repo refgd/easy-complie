@@ -15,6 +15,7 @@ function getEntry() {
     'impor': ['out/index.js'], 
     'typescript':['lib','loc',], 
     'less':['index.js', 'dist/less.cjs.js'], 
+    'sass.js':['dist/sass.sync.js'], 
     'uglify-js':['tools', 'lib']
   };
   for (const mod in unbundledModule) {

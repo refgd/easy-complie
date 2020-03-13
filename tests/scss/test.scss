@@ -1,5 +1,6 @@
 //out: ../output/scss/test.css, sourceMap: true, compress: true, autoprefixer: last 5 versions, groupmedia: true
 @import './helpers/helpers';
+@import './parent';
 
 .test{
     color: #000;

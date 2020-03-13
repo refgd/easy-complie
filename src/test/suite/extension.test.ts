@@ -72,15 +72,21 @@ suite('Extension Test Suite', () => {
 	}).timeout(5000);
 
 	test('Compile Scss File', async () => {
-		const filePath = basePath+'/scss/test.scss';
+		const filePath = basePath+'/scss/parent.scss';
 		await vscode.commands.executeCommand("easyCompile.compile", vscode.Uri.parse(filePath));
 		await sleep(3000);
 		checkDiagnostics('.scss');
 		assert.equal(fs.existsSync(basePath+'/output/scss/test.css'), true, 'Scss Compiled file not exists');
-		assert.equal(fs.md5ForPath(basePath+'/output/scss/test.css'), 'eef04d610cb711023917982699bc6d5d', 'Scss Compiled file incorrect');
+		assert.equal(fs.md5ForPath(basePath+'/output/scss/test.css'), '56bb6d47f01e4fdfd5f68808c50088fe', 'Scss Compiled file incorrect');
 		
 		assert.equal(fs.existsSync(basePath+'/output/scss/test.css.map'), true, 'Scss Map file not exists');
-		assert.equal(fs.md5ForPath(basePath+'/output/scss/test.css.map'), '9e3ae0fb31b32f8c69f0662e16997bf0', 'Scss Map file incorrect');
+		assert.equal(fs.md5ForPath(basePath+'/output/scss/test.css.map'), '401654ea3d7a2a2f244091e5865b98ea', 'Scss Map file incorrect');
+
+		assert.equal(fs.existsSync(basePath+'/output/scss/test2.css'), true, 'Scss Compiled file 2 not exists');
+		assert.equal(fs.md5ForPath(basePath+'/output/scss/test2.css'), '8a6b7cbe328051984978511c4c89b084', 'Scss Compiled file 2 incorrect');
+		
+		assert.equal(fs.existsSync(basePath+'/output/scss/test2.css.map'), true, 'Scss Map file 2 not exists');
+		assert.equal(fs.md5ForPath(basePath+'/output/scss/test2.css.map'), 'd561b2ecece217ec04e590c5ef8c4f48', 'Scss Map file 2 incorrect');
 	}).timeout(5000);
 
 	test('Compile TS File', async () => {

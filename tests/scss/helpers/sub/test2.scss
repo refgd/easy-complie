@@ -1,0 +1,7 @@
+//out: ../../../output/scss/test2.css, sourceMap: true, compress: true, autoprefixer: last 5 versions, groupmedia: true
+@import '../helpers';
+
+.test{
+    color: #000;
+    flex: 1;
+}

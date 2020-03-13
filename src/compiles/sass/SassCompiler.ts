@@ -1,4 +1,4 @@
-import * as sass from 'sass.js';
+import * as sassCompiler from 'sass.js';
 import * as mkpath from 'mkpath';
 import * as path from 'path';
 import * as extend from 'extend';
@@ -85,7 +85,8 @@ export function compile(sassFile: string, defaults): Promise<void>
         const cssFile = path.resolve(sassPath, cssRelativeFilename);
         const cssPath: string = path.parse(cssFile).dir;
         delete options.out;
-
+        //need change "module.exports = factory()" to "module.exports = factory" in node_modules/sass.js/dist/sass.sync.js to make this work
+        const sass = new sassCompiler();
         let opts = {
             style: sass.style.expanded
         };

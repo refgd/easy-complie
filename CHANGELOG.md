@@ -1,4 +1,7 @@
 # Change Log  
+### 1.2.1
+Fix multi main error for scss compile ([#30])
+
 ### 1.2.0
 Fix folder settings have no effect
 Optimize diagnostic message
