@@ -14,7 +14,7 @@ function getEntry() {
   const unbundledModule = {
     'impor': ['out/index.js'], 
     'typescript':['lib','loc',], 
-    'less':['index.js', 'dist/less.cjs.js'], 
+    'less':['index.js', 'dist/less.min.js'], 
     'sass.js':['dist/sass.sync.js'], 
     'uglify-js':['tools', 'lib']
   };

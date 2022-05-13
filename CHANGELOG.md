@@ -1,4 +1,7 @@
 # Change Log  
+### 1.2.2
+Add inline lib option support for Typescript compile
+
 ### 1.2.1
 Fix multi main error for scss compile ([#30])
 

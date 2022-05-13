@@ -2,6 +2,7 @@ import * as extend from 'extend'
 
 const ARRAY_OPTS = {
     "main": true,
+    "lib": true,
 };
 
 export function parse(line: string, defaults)
