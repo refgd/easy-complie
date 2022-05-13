@@ -1,5 +1,3 @@
-import * as extend from 'extend'
-
 const ARRAY_OPTS = {
     "main": true,
     "lib": true,
@@ -14,7 +12,7 @@ export function parse(line: string, defaults)
         return defaults;
     }
 
-    let options = extend({}, defaults);
+    let options = Object.assign({}, defaults);
     let optionLine: string = commentMatch[1];
     let seenKeys: Object = {};
     for (let item of optionLine.split(',')) // string[]

@@ -1,6 +1,5 @@
 import * as ts from "typescript"
 import * as path from 'path'
-import * as extend from 'extend'
 import * as fs from 'fs'
 import * as vscode from 'vscode';
 
@@ -25,7 +24,7 @@ export function compile(tsFile: string, defaults): Promise<any>
         {
             const mainFilePaths: string[] = Configuration.resolveMainFilePaths(options.main, tsPath, tsFile);
             if(!options.exclude) options.exclude = [];
-            if(options.excludes) options.exclude = extend([], options.exclude, options.excludes);
+            if(options.excludes) options.exclude = Object.assign([], options.exclude, options.excludes);
             const excludePaths: string[] = Configuration.resolveMainFilePaths(options.exclude, tsPath, tsFile);
             let lastPromise: Promise<any> | null = null;
             if (mainFilePaths && mainFilePaths.length > 0)
@@ -66,14 +65,14 @@ export function compile(tsFile: string, defaults): Promise<any>
             target: ts.ScriptTarget.ES5, module: ts.ModuleKind.AMD,
             typeRoots: [pathToTypes]
         }
-        tsOptions = extend({}, tsOptions, options);
+        tsOptions = Object.assign({}, tsOptions, options);
         if (typeof outfile === "string") 
         {
-            tsOptions = extend({}, tsOptions, {outFile: Configuration.resolveFilePath(outfile, tsPath, tsFile)});
+            tsOptions = Object.assign({}, tsOptions, {outFile: Configuration.resolveFilePath(outfile, tsPath, tsFile)});
         }
         else if (typeof outdir === "string")
         {
-            tsOptions = extend({}, tsOptions, {outDir: Configuration.resolveFilePath(outdir, tsPath, tsFile)});
+            tsOptions = Object.assign({}, tsOptions, {outDir: Configuration.resolveFilePath(outdir, tsPath, tsFile)});
         }
         
         if(isArray(tsOptions.lib)){
@@ -167,7 +166,7 @@ function promiseChainer(lastPromise: Promise<void>, nextPromise: Promise<void>):
 function compilenext(filePath, defaults, lastPromise): Promise<any>{
     const mainPath: path.ParsedPath = path.parse(filePath);
     const mainRootFileInfo = Configuration.getRootFileInfo(mainPath);
-    const mainDefaults = extend({}, defaults, { rootFileInfo: mainRootFileInfo });
+    const mainDefaults = Object.assign({}, defaults, { rootFileInfo: mainRootFileInfo });
     const compilePromise = compile(filePath, mainDefaults);
     if (lastPromise)
     {

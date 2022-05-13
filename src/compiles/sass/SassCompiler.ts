@@ -1,7 +1,6 @@
 import * as sassCompiler from 'sass.js';
 import * as mkpath from 'mkpath';
 import * as path from 'path';
-import * as extend from 'extend';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 
@@ -24,7 +23,7 @@ export function compile(sassFile: string, defaults): Promise<void>
         {
             const mainFilePaths: string[] = Configuration.resolveMainFilePaths(options.main, sassPath, sassFile);
             if(!options.exclude) options.exclude = [];
-            if(options.excludes) options.exclude = extend([], options.exclude, options.excludes);
+            if(options.excludes) options.exclude = Object.assign([], options.exclude, options.excludes);
             const excludePaths: string[] = Configuration.resolveMainFilePaths(options.exclude, sassPath, sassFile);
             let lastPromise: Promise<void> | null = null;
             if (mainFilePaths && mainFilePaths.length > 0)
@@ -110,7 +109,7 @@ export function compile(sassFile: string, defaults): Promise<void>
                 sourceMapFile = cssFile + '.map';
             }
 
-            opts = extend({}, opts, sourceMapOptions);
+            opts = Object.assign({}, opts, sourceMapOptions);
         }
 
         sass._path = '/'+sassPath.replace(/\\/g, '/').replace(/\:/g, '')+'/';
@@ -381,7 +380,7 @@ function promiseChainer(lastPromise: Promise<void>, nextPromise: Promise<void>):
 function compilenext(filePath, defaults, lastPromise): Promise<any>{
     const mainPath: path.ParsedPath = path.parse(filePath);
     const mainRootFileInfo = Configuration.getRootFileInfo(mainPath);
-    const mainDefaults = extend({}, defaults, { rootFileInfo: mainRootFileInfo });
+    const mainDefaults = Object.assign({}, defaults, { rootFileInfo: mainRootFileInfo });
     const compilePromise = compile(filePath, mainDefaults);
     if (lastPromise)
     {

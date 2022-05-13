@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as extend from 'extend';
 import * as mkpath from 'mkpath'
 
 import * as Configuration from "../../Configuration";
