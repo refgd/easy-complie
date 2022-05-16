@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.34.0"
@@ -270,7 +270,7 @@
     "group-css-media-queries": "^1.4.1",
     "ignore": "^5.0.2",
     "impor": "^0.1.1",
-    "less": "^3.8.1",
+    "less": "^4.1.0",
     "less-plugin-autoprefix": "^2.0.0",
     "less-plugin-functions": "^1.0.0",
     "mkpath": "^1.0.0",

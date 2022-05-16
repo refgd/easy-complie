@@ -1,4 +1,4 @@
-import * as less from 'less'
+import less from 'less'
 import * as mkpath from 'mkpath'
 import * as path from 'path'
 import * as fs from 'fs'
@@ -184,7 +184,7 @@ function cleanBrowsersList(autoprefixOption: string | string[]): string[]
 // writes a file's contents in a path where directories may or may not yet exist
 function writeFileContents(this: void, filepath: string, content: any): Promise<any>
 {
-    return new Promise((resolve, reject) =>
+    return new Promise<void>((resolve, reject) =>
     {
         mkpath(path.dirname(filepath), err =>
         {

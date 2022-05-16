@@ -95,6 +95,6 @@ suite('Extension Test Suite', () => {
 		await sleep(3500);
 		checkDiagnostics('.ts');
 		assert.equal(fs.existsSync(basePath+'/output/ts/test.js'), true, 'TS Compiled file not exists');
-		assert.equal(fs.md5ForPath(basePath+'/output/ts/test.js'), '340876f1b2ee035037bbbefe9f692d69', 'TS Compiled file incorrect');
+		assert.equal(fs.md5ForPath(basePath+'/output/ts/test.js'), '5314f8a256348360ed0617eb7e55bf45', 'TS Compiled file incorrect');
 	}).timeout(5000);
 });

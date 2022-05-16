@@ -1,4 +1,6 @@
 # Change Log  
+### 1.2.4
+Fix issue [#42]
 ### 1.2.2
 Add inline lib option support for Typescript compile
 
