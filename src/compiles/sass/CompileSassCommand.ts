@@ -16,7 +16,7 @@ export class CompileSassCommand
     {
     }
 
-    public execute()
+    public execute(callback = () => {})
     {
         StatusBarMessage.hideError();
         let globalOptions = Configuration.getGlobalOptions(this.filePath, 'sass');
@@ -31,6 +31,7 @@ export class CompileSassCommand
                 this.sassDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
 
                 StatusBarMessage.show(`$(check) Sass compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
+                callback();
             })
             .catch((error: any) =>
             {
@@ -47,6 +48,7 @@ export class CompileSassCommand
                 StatusBarMessage.formatDiagnostic(this.sassDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling sass (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                callback();
             });
     }
 }

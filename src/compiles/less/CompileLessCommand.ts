@@ -15,7 +15,7 @@ export class CompileLessCommand
     {
     }
 
-    public execute()
+    public execute(callback = () => {})
     {
         StatusBarMessage.hideError();
 
@@ -30,6 +30,7 @@ export class CompileLessCommand
                 this.lessDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
 
                 StatusBarMessage.show(`$(check) Less compiled in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
+                callback();
             })
             .catch((error: any) =>
             {
@@ -45,6 +46,7 @@ export class CompileLessCommand
                 StatusBarMessage.formatDiagnostic(this.lessDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling less (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                callback();
             });
     }
 }

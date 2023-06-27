@@ -17,7 +17,7 @@ export class CompileTsCommand
     {
     }
 
-    public execute()
+    public execute(callback = () => {})
     {
         StatusBarMessage.hideError();
         
@@ -53,6 +53,7 @@ export class CompileTsCommand
                 else {
                   StatusBarMessage.show(`$(check) Typescript compiling disabled`, StatusBarMessageTypes.SUCCESS);
                 }
+                callback();
             })
             .catch((error: any) =>
             {
@@ -68,6 +69,7 @@ export class CompileTsCommand
                 StatusBarMessage.formatDiagnostic(this.tsDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error compiling typescript (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                callback();
             });
     }
 }

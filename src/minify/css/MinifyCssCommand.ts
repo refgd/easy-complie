@@ -26,7 +26,7 @@ export class MinifyCssCommand
     {
     }
 
-    public execute()
+    public execute(callback = () => {})
     {
         StatusBarMessage.hideError();
         const cssFile = this.filePath;
@@ -94,6 +94,8 @@ export class MinifyCssCommand
                 this.cssDiagnosticCollection.set(vscode.Uri.parse(this.filePath), []);
 
                 StatusBarMessage.show(`$(check) Css minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
+
+                callback();
             }).catch((error: any) =>
             {
                 compilingMessage.dispose();
@@ -108,6 +110,8 @@ export class MinifyCssCommand
                 StatusBarMessage.formatDiagnostic(this.cssDiagnosticCollection, file, [StatusBarMessage.getDiagnostic(error)]);
 
                 StatusBarMessage.show("$(alert) Error minify css (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+
+                callback();
             });
     }
 }
@@ -124,7 +128,7 @@ function writeFileContents(this: void, filepath: string, content: any): Promise<
                 return reject(err);
             }
 
-            fs.writeFile(filepath, content, err => err ? reject(err) : resolve());
+            fs.writeFile(filepath, content, err => err ? reject(err) : resolve(filepath));
         });
     });
 }

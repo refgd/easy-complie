@@ -104,10 +104,25 @@ export function compile(tsFile: string, defaults): Promise<any>
         });
         
         if( alld.length==0 && options.compress && emitResult.emittedFiles){
-            let surround = options.surround;
-            emitResult.emittedFiles.forEach(file => {
-                let minifyLib = new MinifyJsCommand(undefined, undefined, file, surround);
-                minifyLib.execute();
+            return new Promise((resolve, reject) =>
+            {
+                if(emitResult.emittedFiles && emitResult.emittedFiles.length>0){
+                    let surround = options.surround;
+                    let total = emitResult.emittedFiles.length;
+                    let done = function(){
+                        if(--total==0){
+                            resolve(alld);
+                        }
+                    }
+                    emitResult.emittedFiles.forEach(file => {
+                        let minifyLib = new MinifyJsCommand(undefined, undefined, file, surround);
+                        minifyLib.execute(function (){
+                            done();
+                        });
+                    });
+                }else{
+                    resolve(alld);
+                }
             });
         }
 

@@ -27,7 +27,7 @@ export class MinifyJsCommand
     ){
     }
 
-    public execute()
+    public execute(callback = () => {})
     {
         StatusBarMessage.hideError();
 
@@ -80,6 +80,8 @@ export class MinifyJsCommand
                     this.jsDiagnosticCollection.set(vscode.Uri.parse(filename), []);
 
                 StatusBarMessage.show(`$(check) Js minified in ${elapsedTime}ms`, StatusBarMessageTypes.SUCCESS);
+
+                callback();
             }).catch((error: any) =>
             {
                 if(this.jsDiagnosticCollection){
@@ -99,6 +101,8 @@ export class MinifyJsCommand
 
                 compilingMessage.dispose();
                 StatusBarMessage.show("$(alert) Error minify js (more detail in Errors and Warnings)", StatusBarMessageTypes.ERROR);
+                
+                callback();
             });
     }
 }
@@ -115,7 +119,7 @@ function writeFileContents(this: void, filepath: string, content: any): Promise<
                 return reject(err);
             }
 
-            fs.writeFile(filepath, content, err => err ? reject(err) : resolve());
+            fs.writeFile(filepath, content, err => err ? reject(err) : resolve(filepath));
         });
     });
 }

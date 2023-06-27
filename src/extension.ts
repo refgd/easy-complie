@@ -3,6 +3,9 @@ import * as vscode from 'vscode';
 import * as Configuration from "./Configuration";
 import ignore from 'ignore';
 
+import * as StatusBarMessage from "./StatusBarMessage";
+import {StatusBarMessageTypes} from "./StatusBarMessageTypes";
+
 const impor = require('impor')(__dirname);
 
 const LESS_EXT = ".less";
@@ -14,33 +17,71 @@ const JS_EXT = ".js";
 const COMPILE_COMMAND = "easyCompile.compile";
 const MINIFY_COMMAND = "easyCompile.minify";
 const MINIFYDIR_COMMAND = "easyCompile.minifydir";
+const queue: { type: string, filePath: string }[] = [];
 
 let DiagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(context: vscode.ExtensionContext) {
-
     DiagnosticCollection = vscode.languages.createDiagnosticCollection();
+
+    let running = false;
+    let addQueue = function (type: string, filePath: string){
+        for (let i = queue.length - 1; i >= 0; i--) {
+            if (queue[i].filePath == filePath) {
+                queue.splice(i, 1);
+            }
+        }
+
+        queue.push({
+            type: type,
+            filePath: filePath
+        });
+
+        runQueue();
+    }
+
+    let runQueue = function (force = false){
+        StatusBarMessage.show(`Queue size ${queue.length}`, StatusBarMessageTypes.SUCCESS);
+
+        if(running && !force) return;
+        running = true;
+
+        if(queue.length == 0){
+            running = false;
+            return;
+        }
+
+        const curAction = queue.shift();
+        if(curAction){
+            DiagnosticCollection.clear();
+            let organise;
+            if(curAction.type == LESS_EXT){
+                const LessCompiler = impor("./compiles/less/CompileLessCommand") as typeof import('./compiles/less/CompileLessCommand');
+                organise = new LessCompiler.CompileLessCommand(curAction.filePath, DiagnosticCollection);
+            }else if(curAction.type == SASS_EXT){
+                const SassCompiler = impor("./compiles/sass/CompileSassCommand") as typeof import('./compiles/sass/CompileSassCommand');
+                organise = new SassCompiler.CompileSassCommand(curAction.filePath, DiagnosticCollection);
+            }else if(curAction.type == TS_EXT){
+                const TsCompiler = impor("./compiles/typescript/CompileTsCommand") as typeof import('./compiles/typescript/CompileTsCommand');
+                organise = new TsCompiler.CompileTsCommand(curAction.filePath, DiagnosticCollection);
+            }else if(curAction.type == CSS_EXT){
+                const CssCompiler = impor("./minify/css/MinifyCssCommand") as typeof import("./minify/css/MinifyCssCommand");
+                organise = new CssCompiler.MinifyCssCommand(curAction.filePath, DiagnosticCollection);
+            }else if(curAction.type == JS_EXT){
+                const JsCompiler = impor("./minify/js/MinifyJsCommand") as typeof import('./minify/js/MinifyJsCommand');
+                organise = new JsCompiler.MinifyJsCommand(curAction.filePath, DiagnosticCollection, undefined, undefined);
+            }
+            organise.execute(function (){
+                runQueue(true);
+            });
+        }else{
+            runQueue(true);
+        }
+    }
+
     let runCommand = function (type: string, filePath: string){
         filePath = Configuration.formatPath(filePath);
-        DiagnosticCollection.clear();
-        let organise;
-        if(type == LESS_EXT){
-            const LessCompiler = impor("./compiles/less/CompileLessCommand") as typeof import('./compiles/less/CompileLessCommand');
-            organise = new LessCompiler.CompileLessCommand(filePath, DiagnosticCollection);
-        }else if(type == SASS_EXT){
-            const SassCompiler = impor("./compiles/sass/CompileSassCommand") as typeof import('./compiles/sass/CompileSassCommand');
-            organise = new SassCompiler.CompileSassCommand(filePath, DiagnosticCollection);
-        }else if(type == TS_EXT){
-            const TsCompiler = impor("./compiles/typescript/CompileTsCommand") as typeof import('./compiles/typescript/CompileTsCommand');
-            organise = new TsCompiler.CompileTsCommand(filePath, DiagnosticCollection);
-        }else if(type == CSS_EXT){
-            const CssCompiler = impor("./minify/css/MinifyCssCommand") as typeof import("./minify/css/MinifyCssCommand");
-            organise = new CssCompiler.MinifyCssCommand(filePath, DiagnosticCollection);
-        }else if(type == JS_EXT){
-            const JsCompiler = impor("./minify/js/MinifyJsCommand") as typeof import('./minify/js/MinifyJsCommand');
-            organise = new JsCompiler.MinifyJsCommand(filePath, DiagnosticCollection, undefined, undefined);
-        }
-        organise.execute();
+        addQueue(type, filePath);
     }
 
     let runCompileCommand = function(filePath: string){
