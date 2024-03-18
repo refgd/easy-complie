@@ -189,7 +189,7 @@ export function activate(context: vscode.ExtensionContext) {
             let compileOptions = Configuration.getGlobalOptions(filePath);
             if(compileOptions.ignore){
                 const ig = ignore().add(compileOptions.ignore);
-                if(ig.ignores(filePath)) return;
+                if(ig.ignores(filePath.slice(1))) return;
             }
             if (filePath.endsWith(LESS_EXT) || filePath.endsWith(TS_EXT) || filePath.endsWith(SASS_EXT) || filePath.endsWith(SCSS_EXT))
             {
