@@ -2,7 +2,7 @@
   "name": "easy-compile",
   "displayName": "Easy Compile",
   "description": "Easy to compile TypeScript/Less/Sass/Scss, Minify JS/CSS",
-  "version": "1.2.5",
+  "version": "1.2.6-beta",
   "publisher": "refgd",
   "engines": {
     "vscode": "^1.34.0"
@@ -246,8 +246,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "webpack": "webpack --mode production",
-    "webpack-dev": "webpack --mode development",
+    "webpack": "SET NODE_OPTIONS=--openssl-legacy-provider && webpack --mode production",
+    "webpack-dev": "webpack --mode development --openssl-legacy-provider",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
@@ -266,6 +266,11 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@swc/cli": "^0.3.10",
+    "@swc/core": "^1.4.8",
+    "@swc/core-linux-x64-gnu": "^1.4.8",
+    "@swc/core-linux-x64-musl": "^1.4.8",
+    "@swc/core-win32-x64-msvc": "^1.4.8",
     "clean-css": "^4.2.1",
     "group-css-media-queries": "^1.4.1",
     "ignore": "^5.0.2",
@@ -275,7 +280,7 @@
     "less-plugin-functions": "^1.0.0",
     "mkpath": "^1.0.0",
     "sass.js": "^0.11.1",
-    "typescript": "^3.7.3",
+    "typescript": "^4.9.3",
     "uglify-js": "^3.7.2"
   }
 }

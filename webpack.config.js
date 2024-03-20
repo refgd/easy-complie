@@ -13,9 +13,15 @@ function getEntry() {
   const mod = JSON.parse(npmListRes);
   const unbundledModule = {
     'impor': ['out/index.js'], 
-    'typescript':['lib','loc',], 
+    'typescript':['lib'], 
     'sass.js':['dist/sass.sync.js'], 
-    'uglify-js':['tools', 'lib']
+    'uglify-js':['tools', 'lib'], 
+    '@swc/cli':['lib'], 
+    '@swc/core':[''], 
+    '@swc/types':[''], 
+    '@swc/core-linux-x64-gnu':[''], 
+    '@swc/core-linux-x64-musl':[''], 
+    '@swc/core-win32-x64-msvc':['']
   };
   for (const mod in unbundledModule) {
     unbundledModule[mod].push('package.json');
