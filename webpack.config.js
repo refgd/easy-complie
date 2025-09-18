@@ -4,6 +4,12 @@ const path = require('path');
 const cp = require('child_process');
 const fs = require('fs-plus');
 
+function replaceContent(oldContent, newContent, oldFile, newFile){
+  let content = fs.readFileSync(oldFile, 'utf8');
+  content = content.replace(oldContent, newContent);
+  fs.writeFileSync(newFile, content, 'utf8');
+}
+
 function getEntry() {
   const entry = {};
   fs.removeSync('out/node_modules');
@@ -13,7 +19,7 @@ function getEntry() {
   const mod = JSON.parse(npmListRes);
   const unbundledModule = {
     'impor': ['out/index.js'], 
-    'typescript':['lib','loc',], 
+    'typescript':['lib'], 
     'sass.js':['dist/sass.sync.js'], 
     'uglify-js':['tools', 'lib']
   };
@@ -24,7 +30,11 @@ function getEntry() {
       if(fs.isDirectorySync('node_modules/' + p)){
         fs.copySync('node_modules/' + p, 'out/node_modules/' + p)
       }else{
-        fs.copyFileSync('node_modules/' + p, 'out/node_modules/' + p)
+        if(sub === 'dist/sass.sync.js'){
+          replaceContent('module.exports = factory()', 'module.exports = factory', 'node_modules/' + p, 'out/node_modules/' + p)
+        }else{
+          fs.copyFileSync('node_modules/' + p, 'out/node_modules/' + p)
+        }
       }
     }
   }

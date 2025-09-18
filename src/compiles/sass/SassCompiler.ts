@@ -268,13 +268,13 @@ function getPathVariations(currentPath) {
       // (1) filename as given
       currentPath,
       // (2) underscore + given
-      directory + '\\_' + basename
+      directory + path.sep + '_' + basename
     ].concat(extensions.map(function(extension) {
       // (3) underscore + given + extension
-      return directory + '\\_' + basename + extension;
+      return directory + path.sep + '_' + basename + extension;
     })).concat(extensions.map(function(extension) {
       // (4) given + extension
-      return directory + '\\' + basename + extension;
+      return directory + path.sep + '_' + basename + extension;
     }));
   
     return list;
